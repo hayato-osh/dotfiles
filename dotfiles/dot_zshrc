@@ -1,0 +1,48 @@
+############################
+# 分割ファイルの読み込み
+############################
+ZSHHOME="${HOME}/.config/zsh"
+
+if [ -d $ZSHHOME -a -r $ZSHHOME -a \
+    -x $ZSHHOME ]; then
+  for i in $ZSHHOME/*; do
+    [[ ${i##*/} = *.zsh ]] &&
+      [ \( -f $i -o -h $i \) -a -r $i ] && . $i
+  done
+fi
+
+
+# GoのPathを読み込み
+# export GOPATH=$HOME
+# export PATH=$PATH:$GOPATH/bin
+
+# mysql
+export PATH="/usr/local/opt/mysql@5.6/bin:$PATH"
+
+# starship
+eval "$(starship init zsh)"
+
+
+# プロンプトのオプション表示設定
+GIT_PS1_SHOWDIRTYSTATE=true
+GIT_PS1_SHOWUNTRACKEDFILES=true
+GIT_PS1_SHOWSTASHSTATE=true
+GIT_PS1_SHOWUPSTREAM=auto
+
+
+# auto-suggestionsの設定
+plugins=(
+  zsh-autosuggestions
+)
+
+# flutterのPATHを読み込み
+export PATH="$PATH:/usr/local/bin/flutter"
+
+
+# asdfの設定
+. /usr/local/opt/asdf/libexec/asdf.sh
+
+# openssl
+export PATH="/usr/local/opt/openssl@3/bin:$PATH"
+
+source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
