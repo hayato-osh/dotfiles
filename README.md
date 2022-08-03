@@ -12,5 +12,7 @@ $ brew install chezmoi
 
 $ chezmoi init git@github.com:GitHayato/dotfiles.git
 
+$ chezmoi apply
+
 $ brew bundle
 ```
