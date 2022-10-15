@@ -29,3 +29,7 @@ alias yd='yarn dev'
 alias ydp='yarn dev-proxy'
 alias ydpp='yarn dev-prod-proxy'
 alias ys='yarn storybook'
+
+# others
+alias vim='nvim'
+alias ll='ls -al'

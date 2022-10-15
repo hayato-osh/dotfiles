@@ -10,10 +10,3 @@
 fpath=(~/.zsh $fpath)
 zstyle ':completion:*:*:git:*' script ~/.zsh/git-completion.bash
 autoload -Uz compinit && compinit
-
-# zsh-autosuggestionsの読み込み
-source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-# zsh-autocompleteの読み込み
-source ~/.zsh/zsh-autocomplete/zsh-autocomplete.plugin.zsh
-
