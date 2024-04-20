@@ -22,6 +22,7 @@ alias gf='git fetch'
 alias gl='git log --oneline --graph'
 alias greset='git reset --soft HEAD^'
 alias gempty='git commit --allow-empty -m "empty commit"'
+alias gbranch='git --no-pager branch --sort=committerdate'
 
 # yarn
 alias y='yarn'
