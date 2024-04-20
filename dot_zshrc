@@ -12,37 +12,23 @@ if [ -d $ZSHHOME -a -r $ZSHHOME -a \
 fi
 
 
-# GoのPathを読み込み
-# export GOPATH=$HOME
-# export PATH=$PATH:$GOPATH/bin
-
-# mysql
-export PATH="/usr/local/opt/mysql@5.6/bin:$PATH"
+# goのpathを読み込み
+# export gopath=$home
+# export path=$path:$gopath/bin
 
 # starship
 eval "$(starship init zsh)"
 
 
 # プロンプトのオプション表示設定
-GIT_PS1_SHOWDIRTYSTATE=true
-GIT_PS1_SHOWUNTRACKEDFILES=true
-GIT_PS1_SHOWSTASHSTATE=true
-GIT_PS1_SHOWUPSTREAM=auto
+git_ps1_showdirtystate=true
+git_ps1_showuntrackedfiles=true
+git_ps1_showstashstate=true
+git_ps1_showupstream=auto
+
+. /opt/homebrew/opt/asdf/libexec/asdf.sh
 
 
-# auto-suggestionsの設定
-plugins=(
-  zsh-autosuggestions
-)
+eval "$(/usr/libexec/path_helper)"
 
-# flutterのPATHを読み込み
-export PATH="$PATH:/usr/local/bin/flutter"
-
-
-# asdfの設定
-. /usr/local/opt/asdf/libexec/asdf.sh
-
-# openssl
-export PATH="/usr/local/opt/openssl@3/bin:$PATH"
-
-source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
+PATH=~/.console-ninja/.bin:$PATH
