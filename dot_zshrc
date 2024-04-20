@@ -1,34 +1,14 @@
-############################
-# 分割ファイルの読み込み
-############################
-ZSHHOME="${HOME}/.config/zsh"
+export SHELDON_CONFIG_DIR="$HOME/.config/zsh"
 
-if [ -d $ZSHHOME -a -r $ZSHHOME -a \
-    -x $ZSHHOME ]; then
-  for i in $ZSHHOME/*; do
-    [[ ${i##*/} = *.zsh ]] &&
-      [ \( -f $i -o -h $i \) -a -r $i ] && . $i
-  done
+eval "$(sheldon source)"
+
+# https://zenn.dev/fuzmare/articles/zsh-plugin-manager-cache#%E6%9C%AC%E9%A1%8C%3A-%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3%E3%83%9E%E3%83%8D%E3%83%BC%E3%82%B8%E3%83%A3%E3%83%BC%E3%81%AE%E8%AA%AD%E3%81%BF%E8%BE%BC%E3%81%BF%E3%82%92%E5%9B%9E%E9%81%BF%E3%81%97%E3%81%A6%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3%E3%82%92%E8%AA%AD%E3%81%BF%E8%BE%BC%E3%82%80%E6%96%B9%E6%B3%95
+cache_dir=${XDG_CACHE_HOME:-$HOME/.cache}
+sheldon_cache="$cache_dir/sheldon.zsh"
+sheldon_toml="$SHELDON_CONFIG_DIR/plugins.toml"
+if [[ ! -r "$sheldon_cache" || "$sheldon_toml" -nt "$sheldon_cache" ]]; then
+  mkdir -p $cache_dir
+  sheldon source > $sheldon_cache
 fi
-
-
-# goのpathを読み込み
-# export gopath=$home
-# export path=$path:$gopath/bin
-
-# starship
-eval "$(starship init zsh)"
-
-
-# プロンプトのオプション表示設定
-git_ps1_showdirtystate=true
-git_ps1_showuntrackedfiles=true
-git_ps1_showstashstate=true
-git_ps1_showupstream=auto
-
-. /opt/homebrew/opt/asdf/libexec/asdf.sh
-
-
-eval "$(/usr/libexec/path_helper)"
-
-PATH=~/.console-ninja/.bin:$PATH
+source "$sheldon_cache"
+unset cache_dir sheldon_cache sheldon_toml

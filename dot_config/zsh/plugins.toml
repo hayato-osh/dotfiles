@@ -1,0 +1,33 @@
+shell = "zsh"
+
+[templates]
+defer = "{{ hooks?.pre | nl }}{% for file in files %}zsh-defer source \"{{ file }}\"\n{% endfor %}{{ hooks?.post | nl }}"
+
+[plugins.zsh-defer]
+github = "romkatv/zsh-defer"
+
+[plugins.zsh-autosuggestions]
+github = "zsh-users/zsh-autosuggestions"
+use = ["{{ name }}.zsh"]
+
+[plugins.zsh-autocomplete]
+github = "marlonrichert/zsh-autocomplete"
+
+[plugins.zsh-syntax-highlighting]
+github = "zsh-users/zsh-syntax-highlighting"
+apply = ["defer"]
+
+[plugins.starship]
+inline = 'eval "$(starship init zsh)"'
+
+['plugins.asdf']
+inline = '. /opt/homebrew/opt/asdf/libexec/asdf.sh'
+
+[plugins.dotfiles-sync]
+local = "~/.config/zsh/sync"
+use = ["*.zsh"]
+
+[plugins.dotfiles-defer]
+local = "~/.config/zsh/defer"
+use = ["*.zsh"]
+apply = ["defer"]
