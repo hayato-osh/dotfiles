@@ -10,12 +10,18 @@ github = "romkatv/zsh-defer"
 github = "zsh-users/zsh-autosuggestions"
 use = ["{{ name }}.zsh"]
 
-[plugins.zsh-autocomplete]
-github = "marlonrichert/zsh-autocomplete"
+[plugins.zsh-completions]
+github = 'zsh-users/zsh-completions'
+apply = ["defer"]
 
 [plugins.zsh-syntax-highlighting]
 github = "zsh-users/zsh-syntax-highlighting"
 apply = ["defer"]
+
+[plugins.forgit]
+github = "wfxr/forgit"
+apply = ["defer"]
+
 
 [plugins.starship]
 inline = 'eval "$(starship init zsh)"'
