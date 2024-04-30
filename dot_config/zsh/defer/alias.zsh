@@ -12,12 +12,12 @@ alias grep='rg'
 # git
 alias g='git'
 alias gc='git commit -m'
-alias gp='!git push origin $(git rev-parse --abbrev-ref HEAD)'
-alias gpl='!git pull origin $(git rev-parse --abbrev-ref HEAD)'
+alias gp='git push origin $(git rev-parse --abbrev-ref HEAD)'
+alias gpl='git pull origin $(git rev-parse --abbrev-ref HEAD)'
 alias gf='git fetch'
 alias gsreset='git reset --soft HEAD^'
 alias ghreset='git reset --hard HEAD^'
-alias gbl='!git branch --sort=-authordate | head -n 5'
+alias gbl='git branch --sort=-authordate | head -n 5'
 
 # others
 alias vim='nvim'
