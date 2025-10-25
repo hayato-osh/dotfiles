@@ -26,8 +26,8 @@ apply = ["defer"]
 [plugins.starship]
 inline = 'eval "$(starship init zsh)"'
 
-['plugins.asdf']
-inline = '. /opt/homebrew/opt/asdf/libexec/asdf.sh'
+[plugins.mise]
+inline = 'eval "$(mise activate zsh)"'
 
 [plugins.dotfiles-sync]
 local = "~/.config/zsh/sync"

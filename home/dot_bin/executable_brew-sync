@@ -1,0 +1,28 @@
+#!/bin/bash
+# brew-sync: 現在の Brewfile を chezmoi に同期
+
+set -e
+
+echo "🔄 Syncing Brewfile to chezmoi..."
+
+# Brewfile を再生成
+chezmoi apply --force ~/.Brewfile
+
+# chezmoi に反映
+chezmoi re-add
+
+cd ~/.local/share/chezmoi
+
+echo ""
+echo "📊 Changes:"
+git diff --stat home/dot_Brewfile.tmpl home/Brewfile.common home/Brewfile.work home/Brewfile.personal 2>/dev/null || echo "No changes"
+
+echo ""
+echo "📝 Review changes:"
+echo "  cd ~/.local/share/chezmoi"
+echo "  git diff"
+echo ""
+echo "Commit and push:"
+echo "  git add home/Brewfile.* home/dot_Brewfile.tmpl"
+echo "  git commit -m 'chore: sync Brewfile'"
+echo "  git push"

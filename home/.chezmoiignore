@@ -1,0 +1,4 @@
+# Brewfile のパーツファイル（テンプレートから読み込まれるため単独では展開しない）
+Brewfile.work
+Brewfile.personal
+Brewfile.common

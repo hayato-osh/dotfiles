@@ -1,0 +1,91 @@
+#!/bin/bash
+# brew-move: パッケージを別の Brewfile に移動
+
+set -e
+
+CHEZMOI_SOURCE="$HOME/.local/share/chezmoi/home"
+
+echo "📦 Move package between Brewfiles"
+echo ""
+
+# fzf が使えるかチェック
+if ! command -v fzf &> /dev/null; then
+    echo "❌ fzf is required but not installed"
+    echo "   Install with: brew install fzf"
+    exit 1
+fi
+
+# 全 Brewfile からパッケージ一覧を取得（ソース情報付き）
+get_all_packages() {
+    for file in common work personal; do
+        filepath="$CHEZMOI_SOURCE/Brewfile.$file"
+        if [ -f "$filepath" ]; then
+            while IFS= read -r line; do
+                if [[ $line =~ ^(brew|cask|mas) ]]; then
+                    echo "[$file] $line"
+                fi
+            done < "$filepath"
+        fi
+    done
+}
+
+# パッケージを fzf で選択
+selected=$(get_all_packages | fzf --prompt="Select package to move: " --height=40% --reverse)
+
+if [ -z "$selected" ]; then
+    echo "❌ No package selected"
+    exit 1
+fi
+
+# 選択されたパッケージの情報を抽出
+found_in=$(echo "$selected" | sed -E 's/^\[([^\]]+)\].*/\1/')
+matching_line=$(echo "$selected" | sed -E 's/^\[[^\]]+\] (.*)/\1/')
+
+echo ""
+echo "Selected: $matching_line"
+echo "From: Brewfile.$found_in"
+echo ""
+
+# 移動先を fzf で選択（現在の場所を除外）
+dest=$(printf "common\nwork\npersonal" | \
+    grep -v "^$found_in$" | \
+    fzf --prompt="Move to: " \
+        --preview="echo 'common   - shared across all machines'; echo 'work     - work-specific packages'; echo 'personal - personal packages'" \
+        --preview-window=up:3 \
+        --height=40% \
+        --reverse)
+
+if [ -z "$dest" ]; then
+    echo "❌ No destination selected"
+    exit 1
+fi
+
+# 移動実行
+source_path="$CHEZMOI_SOURCE/Brewfile.$found_in"
+dest_path="$CHEZMOI_SOURCE/Brewfile.$dest"
+
+# エスケープして grep で検索
+escaped_line=$(echo "$matching_line" | sed 's/[]\/$*.^[]/\\&/g')
+
+# 元のファイルから削除
+grep -vF "$matching_line" "$source_path" > "$source_path.tmp"
+mv "$source_path.tmp" "$source_path"
+
+# 移動先に追加
+echo "$matching_line" >> "$dest_path"
+
+echo ""
+echo "✅ Moved: $matching_line"
+echo "   from: Brewfile.$found_in"
+echo "   to:   Brewfile.$dest"
+
+# chezmoi に反映
+echo ""
+echo "🔄 Syncing to chezmoi..."
+chezmoi re-add
+
+echo ""
+echo "📝 Next steps:"
+echo "  cd ~/.local/share/chezmoi"
+echo "  git diff"
+echo "  git add . && git commit -m 'chore: move package to $dest' && git push"

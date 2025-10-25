@@ -4,8 +4,9 @@
 
 # rust
 alias cat='bat'
-alias ls='exa --icons'
-alias ls.='exa --icons -a'
+alias ls='eza --icons'
+alias ls.='eza --icons -a'
+alias tree='eza --tree'
 alias find='fd'
 alias grep='rg'
 

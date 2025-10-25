@@ -1,0 +1,145 @@
+#!/bin/bash
+# brew-add: パッケージを対話的に Brewfile に追加
+
+set -e
+
+CHEZMOI_SOURCE="$HOME/.local/share/chezmoi/home"
+
+echo "📦 Add package to Brewfile"
+echo ""
+
+# fzf が使えるかチェック
+if ! command -v fzf &> /dev/null; then
+    echo "❌ fzf is required but not installed"
+    echo "   Install with: brew install fzf"
+    exit 1
+fi
+
+# 既に Brewfile に登録されているパッケージを取得
+get_managed_packages() {
+    cat "$CHEZMOI_SOURCE"/Brewfile.{common,work,personal} 2>/dev/null | \
+        grep -E '^(brew|cask|mas)' | \
+        sed -E 's/(brew|cask|mas) "([^"]+)".*/\2/' | \
+        sort -u
+}
+
+# 現在インストールされている brew パッケージ
+get_installed_brews() {
+    brew list --formula -1 | sort
+}
+
+# 現在インストールされている cask パッケージ
+get_installed_casks() {
+    brew list --cask -1 | sort
+}
+
+echo "Select package source:"
+echo "  1) Installed brew packages"
+echo "  2) Installed cask packages"
+echo "  3) Manual entry (for not-yet-installed packages)"
+read -p "Source [1-3]: " source_type
+
+case $source_type in
+    1)
+        pkg_type="brew"
+        managed=$(get_managed_packages)
+        package_name=$(get_installed_brews | \
+            grep -vF "$managed" | \
+            fzf --prompt="Select brew package: " --height=40% --reverse)
+        if [ -z "$package_name" ]; then
+            echo "❌ No package selected"
+            exit 1
+        fi
+        entry="brew \"$package_name\""
+        ;;
+    2)
+        pkg_type="cask"
+        managed=$(get_managed_packages)
+        package_name=$(get_installed_casks | \
+            grep -vF "$managed" | \
+            fzf --prompt="Select cask package: " --height=40% --reverse)
+        if [ -z "$package_name" ]; then
+            echo "❌ No package selected"
+            exit 1
+        fi
+        entry="cask \"$package_name\""
+        ;;
+    3)
+        read -p "Package name: " package_name
+        if [ -z "$package_name" ]; then
+            echo "❌ Package name is required"
+            exit 1
+        fi
+
+        echo ""
+        echo "Select package type:"
+        echo "  1) brew (formula)"
+        echo "  2) cask (application)"
+        echo "  3) mas (Mac App Store)"
+        read -p "Type [1-3]: " manual_type
+
+        case $manual_type in
+            1) entry="brew \"$package_name\"" ;;
+            2) entry="cask \"$package_name\"" ;;
+            3)
+                read -p "App Store ID: " mas_id
+                entry="mas \"$package_name\", id: $mas_id"
+                ;;
+            *)
+                echo "❌ Invalid type"
+                exit 1
+                ;;
+        esac
+        ;;
+    *)
+        echo "❌ Invalid source"
+        exit 1
+        ;;
+esac
+
+# 追加先ファイルを fzf で選択
+echo ""
+dest=$(printf "common\nwork\npersonal" | \
+    fzf --prompt="Select destination: " \
+        --preview="echo 'common   - shared across all machines'; echo 'work     - work-specific packages'; echo 'personal - personal packages'" \
+        --preview-window=up:3 \
+        --height=40% \
+        --reverse)
+
+if [ -z "$dest" ]; then
+    echo "❌ No destination selected"
+    exit 1
+fi
+
+case $dest in
+    common)
+        file="$CHEZMOI_SOURCE/Brewfile.common"
+        ;;
+    work)
+        file="$CHEZMOI_SOURCE/Brewfile.work"
+        ;;
+    personal)
+        file="$CHEZMOI_SOURCE/Brewfile.personal"
+        ;;
+    *)
+        echo "❌ Invalid destination"
+        exit 1
+        ;;
+esac
+
+# ファイルに追記
+echo "$entry" >> "$file"
+echo ""
+echo "✅ Added: $entry"
+echo "   to: $file"
+
+# chezmoi に反映
+echo ""
+echo "🔄 Syncing to chezmoi..."
+chezmoi re-add
+
+echo ""
+echo "📝 Next steps:"
+echo "  cd ~/.local/share/chezmoi"
+echo "  git diff"
+echo "  git add . && git commit -m 'chore: add $package_name to $dest' && git push"
