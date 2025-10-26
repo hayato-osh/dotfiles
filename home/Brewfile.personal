@@ -1,3 +1,13 @@
 # 個人専用パッケージ
 # brew-add スクリプトで追加するか、直接編集してください
 
+tap "oven-sh/bun"
+tap "stripe/stripe-cli"
+brew "oven-sh/bun/bun"
+brew "stripe/stripe-cli/stripe"
+cask "1password"
+cask "brave-browser"
+cask "discord"
+cask "kindle"
+cask "notion"
+cask "obsidian"
