@@ -31,7 +31,26 @@ managed by [chezmoi](https://www.chezmoi.io/)
 
 ## 初回セットアップ
 
-### 1. 事前準備
+### ワンライナーでセットアップ（推奨）
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/hayato-osh/dotfiles/main/setup.sh)"
+```
+
+このコマンドで以下が自動的に実行されます：
+
+1. Xcode Command Line Tools のインストール
+2. Homebrew のインストール
+3. chezmoi のインストール
+4. dotfiles リポジトリのクローン
+5. Git 設定（user.name, user.email の入力を求められます）
+6. SSH 鍵の生成（GitHub email の入力を求められます）
+7. dotfiles の配置
+8. Homebrew パッケージのインストール
+
+### 手動セットアップ
+
+#### 1. 事前準備
 
 ```bash
 # Xcode Command Line Tools のインストール
@@ -48,19 +67,11 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 brew install chezmoi
 ```
 
-### 2. dotfiles の適用
+#### 2. dotfiles の適用
 
 ```bash
 chezmoi init --apply git@github.com:hayato-osh/dotfiles.git
 ```
-
-このコマンドで以下が自動的に実行されます：
-
-1. dotfiles リポジトリのクローン
-2. Git 設定（user.name, user.email の入力を求められます）
-3. SSH 鍵の生成（GitHub email の入力を求められます）
-4. dotfiles の配置
-5. Homebrew パッケージのインストール
 
 ### 3. セットアップ完了後
 
