@@ -10,7 +10,8 @@ managed by [chezmoi](https://www.chezmoi.io/)
 ├── .chezmoiscripts/    # chezmoi の自動実行スクリプト
 │   ├── run_once_before_10-git-config.sh       # Git 初期設定
 │   ├── run_once_before_20-ssh-setup.sh        # SSH 鍵生成
-│   └── run_once_after_30-install-homebrew-bundle.sh  # Homebrew パッケージインストール
+│   ├── run_once_after_30-install-homebrew-bundle.sh  # Homebrew パッケージインストール
+│   └── run_once_after_40-macos-defaults.sh    # macOS システム設定
 ├── home/               # 管理対象の dotfiles
 │   ├── .chezmoi.toml.tmpl
 │   ├── .chezmoiignore
@@ -47,6 +48,7 @@ managed by [chezmoi](https://www.chezmoi.io/)
 6. SSH 鍵の生成（GitHub email の入力を求められます）
 7. dotfiles の配置
 8. Homebrew パッケージのインストール
+9. macOS システム設定のカスタマイズ
 
 ### 手動セットアップ
 
@@ -175,6 +177,46 @@ git add .
 git commit -m "chore: add foo"
 git push
 ```
+
+## macOS システム設定
+
+`run_once_after_40-macos-defaults.sh` で以下の設定が自動的に適用されます：
+
+### Dock
+- 自動的に隠す
+- アイコンサイズ: 48px
+- 最近使った項目を非表示
+- 画面下部に配置
+
+### Finder
+- 隠しファイルを表示
+- パスバーを表示
+- ステータスバーを表示
+- すべての拡張子を表示
+- 拡張子変更時の警告を無効化
+- デフォルトビュー: リスト表示
+
+### トラックパッド
+- タップでクリックを有効化
+
+### キーボード
+- キーリピート速度を高速化
+- リピート開始までの時間を短縮
+- 長押しでの特殊文字入力を無効化
+
+### スクリーンショット
+- 保存先: デスクトップ
+- フォーマット: PNG
+- 影を無効化
+
+### その他
+- 自動大文字変換を無効化
+- スマートダッシュを無効化
+- ピリオド自動挿入を無効化
+- スマートクォートを無効化
+- 自動スペルチェックを無効化
+
+設定を変更したい場合は `.chezmoiscripts/run_once_after_40-macos-defaults.sh` を編集してください。
 
 ## Tips
 
