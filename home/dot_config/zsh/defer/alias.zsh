@@ -11,8 +11,8 @@ alias find='fd'
 alias grep='rg'
 
 # git
+alias lg='lazygit'
 alias g='git'
-alias gc='git commit -m'
 alias gp='git push origin $(git rev-parse --abbrev-ref HEAD)'
 alias gpl='git pull origin $(git rev-parse --abbrev-ref HEAD)'
 alias gf='git fetch'
