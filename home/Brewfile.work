@@ -1,2 +1,10 @@
 # 会社専用パッケージ
 # brew-add スクリプトで追加するか、直接編集してください
+
+brew "aws-vault", link: false
+brew "awscli"
+brew "gpgme"
+brew "pinentry-mac"
+cask "aws-vault-binary"
+cask "meetingbar"
+cask "session-manager-plugin"
