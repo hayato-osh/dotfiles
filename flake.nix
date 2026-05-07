@@ -22,6 +22,9 @@
       url = "github:zsh-users/zsh-syntax-highlighting";
       flake = false;
     };
+
+    # LazyVim を宣言的に管理
+    lazyvim.url = "github:pfassina/lazyvim-nix";
   };
 
   outputs =
@@ -39,7 +42,7 @@
           ];
 
           extraSpecialArgs = {
-            inherit (inputs) zsh-autosuggestions zsh-completions zsh-syntax-highlighting;
+            inherit (inputs) zsh-autosuggestions zsh-completions zsh-syntax-highlighting lazyvim;
           };
         };
       };
