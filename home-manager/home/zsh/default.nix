@@ -55,11 +55,6 @@
           apply = [ "defer" ];
         };
 
-        # Phase 6 で direnv + flake に置き換え予定
-        mise = {
-          inline = ''eval "$(mise activate zsh)"'';
-        };
-
         dotfiles-sync = {
           local = "${./sync}";
           use = [ "*.zsh" ];
