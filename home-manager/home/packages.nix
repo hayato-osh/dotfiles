@@ -11,11 +11,6 @@ let
     ripgrep
   ];
 
-  # ターミナル multiplexer (tmux からの乗り換え)
-  terminalTools = with pkgs; [
-    zellij
-  ];
-
   # Git / GitHub
   gitTools = with pkgs; [
     gh
@@ -58,7 +53,6 @@ in
 
   home.packages =
     modernCli
-    ++ terminalTools
     ++ gitTools
     ++ nodeTools
     ++ serviceCli

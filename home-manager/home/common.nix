@@ -2,11 +2,13 @@
 
 {
   imports = [
+    ./ghostty.nix
     ./git.nix
     ./mise.nix
     ./nvim
     ./packages.nix
     ./starship.nix
+    ./zellij.nix
     ./zsh
   ];
 
