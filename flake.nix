@@ -1,9 +1,14 @@
 {
-  description = "Home Manager configuration of hayato";
+  description = "Home Manager + nix-darwin configuration of hayato";
 
   inputs = {
-    # Specify the source of Home Manager and Nixpkgs.
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+
+    nix-darwin = {
+      url = "github:nix-darwin/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -28,23 +33,39 @@
   };
 
   outputs =
-    { nixpkgs, home-manager, ... }@inputs:
+    { nixpkgs, nix-darwin, home-manager, ... }@inputs:
+    let
+      hmExtraSpecialArgs = {
+        inherit (inputs) zsh-autosuggestions zsh-completions zsh-syntax-highlighting lazyvim;
+      };
+
+      hmCommonModules = [
+        ./home-manager/home/common.nix
+        ./home-manager/home/mac.nix
+      ];
+    in
     {
-      homeConfigurations = {
-        "hayato@HayatonoMacBook-Pro.local" = home-manager.lib.homeManagerConfiguration {
-          pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+      darwinConfigurations."HayatonoMacBook-Pro" = nix-darwin.lib.darwinSystem {
+        modules = [
+          ./darwin/default.nix
+          ./darwin/profiles/personal.nix
+          home-manager.darwinModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.extraSpecialArgs = hmExtraSpecialArgs;
+            home-manager.users.hayato = {
+              imports = hmCommonModules;
+            };
+          }
+        ];
+      };
 
-          # Specify your home configuration modules here, for example,
-          # the path to your home.nix.
-          modules = [
-            ./home-manager/home/common.nix
-            ./home-manager/home/mac.nix
-          ];
-
-          extraSpecialArgs = {
-            inherit (inputs) zsh-autosuggestions zsh-completions zsh-syntax-highlighting lazyvim;
-          };
-        };
+      # 互換: nix-darwin を使わずに HM 単独 switch する経路も残す
+      homeConfigurations."hayato@HayatonoMacBook-Pro.local" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+        modules = hmCommonModules;
+        extraSpecialArgs = hmExtraSpecialArgs;
       };
     };
 }
