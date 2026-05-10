@@ -38,34 +38,19 @@
       hmExtraSpecialArgs = {
         inherit (inputs) zsh-autosuggestions zsh-completions zsh-syntax-highlighting lazyvim;
       };
-
-      hmCommonModules = [
-        ./home-manager/home/common.nix
-        ./home-manager/home/mac.nix
-      ];
     in
     {
       darwinConfigurations."HayatonoMacBook-Pro" = nix-darwin.lib.darwinSystem {
         modules = [
-          ./darwin/default.nix
-          ./darwin/profiles/personal.nix
+          ./hosts/HayatonoMacBook-Pro
           home-manager.darwinModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.extraSpecialArgs = hmExtraSpecialArgs;
-            home-manager.users.hayato = {
-              imports = hmCommonModules;
-            };
+            home-manager.users.hayato.imports = [ ./home/hayato ];
           }
         ];
-      };
-
-      # 互換: nix-darwin を使わずに HM 単独 switch する経路も残す
-      homeConfigurations."hayato@HayatonoMacBook-Pro.local" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.aarch64-darwin;
-        modules = hmCommonModules;
-        extraSpecialArgs = hmExtraSpecialArgs;
       };
     };
 }

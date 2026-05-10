@@ -1,6 +1,6 @@
 ---
 name: dotfiles-maintenance
-description: Nix Flake + nix-darwin + Home Manager で管理する macOS dotfiles リポを編集・更新・トラブルシュートするとき。`darwin/`、`home-manager/`、`flake.nix` 配下の編集、Homebrew cask / mas アプリ / nixpkgs CLI / mise ランタイム / `defaults write` / zsh スニペット / LazyVim 設定 / 新ホスト追加 / `nix flake update` / `darwin-rebuild switch` の失敗対応で発火。トリガー語例 - 「cask 追加」「brew で入れたい」「mise の node を上げる」「macOS の dock を」「zsh のエイリアス」「新しい mac のセットアップ」「flake update」「switch が落ちる」。一時的なツール導入や 1 プロジェクト用の依存追加では使わない (代わりに `nix shell` / プロジェクトローカル `flake.nix` / `mise use`)。
+description: Nix Flake + nix-darwin + Home Manager で管理する macOS dotfiles リポを編集・更新・トラブルシュートするとき。`hosts/`、`modules/`、`home/`、`flake.nix` 配下の編集、Homebrew cask / mas アプリ / nixpkgs CLI / mise ランタイム / `defaults write` / zsh スニペット / LazyVim 設定 / 新ホスト追加 / `nix flake update` / `darwin-rebuild switch` の失敗対応で発火。トリガー語例 - 「cask 追加」「brew で入れたい」「mise の node を上げる」「macOS の dock を」「zsh のエイリアス」「新しい mac のセットアップ」「flake update」「switch が落ちる」。一時的なツール導入や 1 プロジェクト用の依存追加では使わない (代わりに `nix shell` / プロジェクトローカル `flake.nix` / `mise use`)。
 ---
 
 # dotfiles メンテナンス
@@ -15,18 +15,18 @@ description: Nix Flake + nix-darwin + Home Manager で管理する macOS dotfile
 
 | ユーザーが追加・変更したいもの | 編集先 | 詳細レシピ |
 | --- | --- | --- |
-| GUI アプリ (App Store 以外) | [`darwin/profiles/personal.nix`](../../../darwin/profiles/personal.nix) の `homebrew.casks` | [Homebrew cask を 1 つ足す](../../../docs/maintenance.md#homebrew-cask-を-1-つ足す) |
-| App Store のアプリ | [`darwin/profiles/personal.nix`](../../../darwin/profiles/personal.nix) の `homebrew.masApps` | [App Store アプリを足す (mas)](../../../docs/maintenance.md#app-store-アプリを足す-mas) |
-| CLI ツール (プロジェクト単位のバージョン切替不要) | [`home-manager/home/packages.nix`](../../../home-manager/home/packages.nix) の `let` バインディング | [CLI ツール (nixpkgs) を足す](../../../docs/maintenance.md#cli-ツール-nixpkgs-を足す) |
-| プロジェクト単位でバージョン切替するランタイム (node / python / ruby など) | [`home-manager/home/mise.nix:9`](../../../home-manager/home/mise.nix) の `globalConfig.tools` | [mise でランタイムを増やす / バージョンを上げる](../../../docs/maintenance.md#mise-でランタイムを増やす--バージョンを上げる) |
-| フォント | [`darwin/default.nix`](../../../darwin/default.nix) の `fonts.packages` | (packages.nix のパターンを踏襲) |
-| `defaults write` (Dock / Finder / NSGlobalDomain 等) | [`darwin/macos-defaults.nix`](../../../darwin/macos-defaults.nix) | [macOS の `defaults write` を足す](../../../docs/maintenance.md#macos-の-defaults-write-を足す) |
-| zsh スニペット — 即時 source (PATH / options 系) | `home-manager/home/zsh/sync/<name>.zsh` を新規作成 | [zsh のエイリアスや関数を足す](../../../docs/maintenance.md#zsh-のエイリアスや関数を足す) |
-| zsh スニペット — 遅延 source (alias / 補完 / fzf glue) | `home-manager/home/zsh/defer/<name>.zsh` を新規作成 | 同上 |
-| ツール固有設定 (git / zellij / starship / ghostty) | `home-manager/home/<tool>.nix` の `programs.<tool>.settings` | [git の global ignore を足す](../../../docs/maintenance.md#git-の-global-ignore-を足す) ほか |
-| Neovim プラグイン override / colorscheme | [`home-manager/home/nvim/default.nix`](../../../home-manager/home/nvim/default.nix) の `plugins.overrides` (Lua 文字列) | [Neovim (LazyVim) のプラグインを上書き / 追加](../../../docs/maintenance.md#neovim-lazyvim-のプラグインを上書き--追加) |
-| 新規 HM モジュール (例: `programs.ssh`) | `home-manager/home/<name>.nix` 新規 + [`common.nix`](../../../home-manager/home/common.nix) の `imports` に追加 | [新しいモジュールを 1 つ切り出す](../../../docs/maintenance.md#新しいモジュールを-1-つ切り出す) |
-| 新ホスト (work mac 等) | `darwin/profiles/<host>.nix` を新規 + [`flake.nix`](../../../flake.nix) に `darwinConfigurations` エントリ追加 | [新ホスト追加](../../../docs/maintenance.md#新ホスト追加-work-マシン等) |
+| GUI アプリ (App Store 以外) | [`hosts/HayatonoMacBook-Pro/default.nix`](../../../hosts/HayatonoMacBook-Pro/default.nix) の `homebrew.casks` | [Homebrew cask を 1 つ足す](../../../docs/maintenance.md#homebrew-cask-を-1-つ足す) |
+| App Store のアプリ | [`hosts/HayatonoMacBook-Pro/default.nix`](../../../hosts/HayatonoMacBook-Pro/default.nix) の `homebrew.masApps` | [App Store アプリを足す (mas)](../../../docs/maintenance.md#app-store-アプリを足す-mas) |
+| CLI ツール (プロジェクト単位のバージョン切替不要) | [`modules/home/packages.nix`](../../../modules/home/packages.nix) の `let` バインディング | [CLI ツール (nixpkgs) を足す](../../../docs/maintenance.md#cli-ツール-nixpkgs-を足す) |
+| プロジェクト単位でバージョン切替するランタイム (node / python / ruby など) | [`modules/home/mise.nix:9`](../../../modules/home/mise.nix) の `globalConfig.tools` | [mise でランタイムを増やす / バージョンを上げる](../../../docs/maintenance.md#mise-でランタイムを増やす--バージョンを上げる) |
+| フォント | [`modules/darwin/default.nix`](../../../modules/darwin/default.nix) の `fonts.packages` | (packages.nix のパターンを踏襲) |
+| `defaults write` (Dock / Finder / NSGlobalDomain 等) | [`modules/darwin/macos-defaults.nix`](../../../modules/darwin/macos-defaults.nix) | [macOS の `defaults write` を足す](../../../docs/maintenance.md#macos-の-defaults-write-を足す) |
+| zsh スニペット — 即時 source (PATH / options 系) | `modules/home/zsh/sync/<name>.zsh` を新規作成 | [zsh のエイリアスや関数を足す](../../../docs/maintenance.md#zsh-のエイリアスや関数を足す) |
+| zsh スニペット — 遅延 source (alias / 補完 / fzf glue) | `modules/home/zsh/defer/<name>.zsh` を新規作成 | 同上 |
+| ツール固有設定 (git / zellij / starship / ghostty) | `modules/home/<tool>.nix` の `programs.<tool>.settings` | [git の global ignore を足す](../../../docs/maintenance.md#git-の-global-ignore-を足す) ほか |
+| Neovim プラグイン override / colorscheme | [`modules/home/nvim/default.nix`](../../../modules/home/nvim/default.nix) の `plugins.overrides` (Lua 文字列) | [Neovim (LazyVim) のプラグインを上書き / 追加](../../../docs/maintenance.md#neovim-lazyvim-のプラグインを上書き--追加) |
+| 新規 HM モジュール (例: `programs.ssh`) | `modules/home/<name>.nix` 新規 + [`modules/home/default.nix`](../../../modules/home/default.nix) の `imports` に追加 | [新しいモジュールを 1 つ切り出す](../../../docs/maintenance.md#新しいモジュールを-1-つ切り出す) |
+| 新ホスト (work mac 等) | `hosts/<host>/default.nix` を新規 + [`flake.nix`](../../../flake.nix) に `darwinConfigurations` エントリ追加 | [新ホスト追加](../../../docs/maintenance.md#新ホスト追加-work-マシン等) |
 | input 更新 (nixpkgs / lazyvim / sheldon プラグイン) | `nix flake update [<input>]` で `flake.lock` を更新 | [更新作業](../../../docs/maintenance.md#更新作業) |
 
 ユーザーの依頼が表に当てはまらない場合は、行動する前に [docs/maintenance.md](../../../docs/maintenance.md) を全文読む。skill 本体が要約で落としたケースの可能性がある。
@@ -35,7 +35,7 @@ description: Nix Flake + nix-darwin + Home Manager で管理する macOS dotfile
 
 ### 例 1: 「Rectangle (cask) を入れて」
 
-`darwin/profiles/personal.nix` の `casks` (アルファベット順) に 1 行追加:
+`hosts/HayatonoMacBook-Pro/default.nix` の `casks` (アルファベット順) に 1 行追加:
 
 ```diff
    "postman"
@@ -48,7 +48,7 @@ description: Nix Flake + nix-darwin + Home Manager で管理する macOS dotfile
 
 ### 例 2: 「mise の node を 22.18.0 に上げて」
 
-[`home-manager/home/mise.nix:9`](../../../home-manager/home/mise.nix) の `globalConfig.tools.node` を書き換え:
+[`modules/home/mise.nix:9`](../../../modules/home/mise.nix) の `globalConfig.tools.node` を書き換え:
 
 ```diff
        tools = {
@@ -63,7 +63,7 @@ description: Nix Flake + nix-darwin + Home Manager で管理する macOS dotfile
 
 ### 例 3: 「zsh で `ll` エイリアスを足して (起動が遅くなるのは嫌)」
 
-`home-manager/home/zsh/defer/<name>.zsh` を新規作成 (遅延 source なので `defer/` 側):
+`modules/home/zsh/defer/<name>.zsh` を新規作成 (遅延 source なので `defer/` 側):
 
 ```sh
 alias ll='eza -l --git'
@@ -74,12 +74,12 @@ alias ll='eza -l --git'
 ## 厳守ルール (過去にユーザーが踏んだ罠)
 
 1. **新規ファイルを作ったら switch 前に必ず `git add --intent-to-add <file>`**。Nix の flake 評価器は git index に載っているファイルしか見ない。これを忘れると意味のわからない「ファイルが見つからない」エラーが出る。
-2. **`darwin/` と `home-manager/` の境界をまたがない**。`darwin/` = root/OS スコープ・cask・mas・`defaults write`・フォント・users。`home-manager/` = ユーザースコープの CLI と dotfiles。HM に cask を入れたり、darwin に CLI ツールを入れたりするのは「層を間違えている」サイン。
-3. **ランタイムは mise の領分** ([`home-manager/home/mise.nix:9`](../../../home-manager/home/mise.nix))。`nodejs`、`python`、`ruby`、`go` 等を [`home-manager/home/packages.nix`](../../../home-manager/home/packages.nix) に入れない。
-4. **`programs.ghostty.package = null;` は意図的** ([`home-manager/home/ghostty.nix:7`](../../../home-manager/home/ghostty.nix))。バイナリは Homebrew cask、HM は設定ファイルだけ書く。`package = null;` を「直そう」として消さない。
-5. **Sheldon 統合は手動配線** ([`home-manager/home/zsh/default.nix:11`](../../../home-manager/home/zsh/default.nix) の `lib.mkBefore` ブロックと [`:31`](../../../home-manager/home/zsh/default.nix) の `enableZshIntegration = false;` は 1 セット)。zsh-defer を sheldon キャッシュより先に source する必要があるため。手動キャッシュコードを残したまま `enableZshIntegration` を `true` に切り替えない。
-6. **`home.stateVersion`** ([`home-manager/home/common.nix:22`](../../../home-manager/home/common.nix)) **と `system.stateVersion`** ([`darwin/default.nix:13`](../../../darwin/default.nix)) **は互換性ピン**。Home Manager や nix-darwin が新リリースを出したからといって上げるものではない。
-7. **`homebrew.onActivation.cleanup = "none";`** ([`darwin/default.nix:34`](../../../darwin/default.nix)) **は意図的** (移行期の事故防止)。ユーザーの明示的合意なしに `"zap"` に変えない — 現在のプロファイルに無い cask が一律アンインストールされる。
+2. **層の境界をまたがない**。`hosts/` + `modules/darwin/` = root/OS スコープ・cask・mas・`defaults write`・フォント・users。`modules/home/` + `home/` = ユーザースコープの CLI と dotfiles。HM に cask を入れたり、darwin に CLI ツールを入れたりするのは「層を間違えている」サイン。
+3. **ランタイムは mise の領分** ([`modules/home/mise.nix:9`](../../../modules/home/mise.nix))。`nodejs`、`python`、`ruby`、`go` 等を [`modules/home/packages.nix`](../../../modules/home/packages.nix) に入れない。
+4. **`programs.ghostty.package = null;` は意図的** ([`modules/home/ghostty.nix:7`](../../../modules/home/ghostty.nix))。バイナリは Homebrew cask、HM は設定ファイルだけ書く。`package = null;` を「直そう」として消さない。
+5. **Sheldon 統合は手動配線** ([`modules/home/zsh/default.nix:11`](../../../modules/home/zsh/default.nix) の `lib.mkBefore` ブロックと [`:31`](../../../modules/home/zsh/default.nix) の `enableZshIntegration = false;` は 1 セット)。zsh-defer を sheldon キャッシュより先に source する必要があるため。手動キャッシュコードを残したまま `enableZshIntegration` を `true` に切り替えない。
+6. **`home.stateVersion`** ([`modules/home/default.nix:22`](../../../modules/home/default.nix)) **と `system.stateVersion`** ([`modules/darwin/default.nix:13`](../../../modules/darwin/default.nix)) **は互換性ピン**。Home Manager や nix-darwin が新リリースを出したからといって上げるものではない。
+7. **`homebrew.onActivation.cleanup = "none";`** ([`modules/darwin/default.nix:34`](../../../modules/darwin/default.nix)) **は意図的** (移行期の事故防止)。ユーザーの明示的合意なしに `"zap"` に変えない — 現在のプロファイルに無い cask が一律アンインストールされる。
 8. **flake のキー (`darwinConfigurations."<host>"`) は `scutil --get LocalHostName` と一致必須**。ずれていると `darwinConfigurations.<host>.system not found` が出る。
 
 ## 標準ワークフロー (どんな変更でも)

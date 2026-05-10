@@ -2,9 +2,11 @@
 
 macOS 環境を **Nix Flake + nix-darwin + Home Manager** で宣言的に管理する。
 
-- システムスコープ (cask / mas / `defaults write` / フォント) は `darwin/`
-- ユーザースコープ (CLI / シェル / dotfiles) は `home-manager/`
-- 1 コマンド (`darwin-rebuild switch`) で両方を反映する
+- ホスト固有 (cask / mas) は `hosts/<host>/`
+- システムスコープの再利用部品 (`defaults write` / フォント / homebrew 有効化 / nix 設定) は `modules/darwin/`
+- ユーザースコープの再利用部品 (CLI / シェル / dotfiles) は `modules/home/`
+- ユーザー組み立て (`home.username` などホスト × ユーザーの結合点) は `home/<user>/`
+- 1 コマンド (`darwin-rebuild switch`) で全部を反映する
 
 変更を加える時の手引きは [docs/maintenance.md](./docs/maintenance.md)。アーキテクチャの非自明な制約は [CLAUDE.md](./CLAUDE.md)。
 
@@ -12,23 +14,27 @@ macOS 環境を **Nix Flake + nix-darwin + Home Manager** で宣言的に管理�
 
 ```
 .
-├── flake.nix                       # darwinConfigurations + 互換 homeConfigurations
-├── darwin/
-│   ├── default.nix                 # homebrew enable / fonts / nix 設定 / users
-│   ├── macos-defaults.nix          # defaults write (Dock / Finder / Screencapture / NSGlobalDomain)
-│   └── profiles/
-│       └── personal.nix            # cask + mas (ホスト単位で切り替える層)
-└── home-manager/home/
-    ├── common.nix                  # 兄弟モジュールを集約する import-only
-    ├── mac.nix                     # home.username / home.homeDirectory
-    ├── packages.nix                # nixpkgs の CLI ツール
-    ├── mise.nix                    # ランタイム (node / python / gemini-cli)
-    ├── git.nix
-    ├── ghostty.nix                 # 設定のみ (バイナリは cask)
-    ├── starship.nix
-    ├── zellij.nix
-    ├── nvim/                       # LazyVim (lazyvim-nix flake input)
-    └── zsh/                        # sheldon + zsh-defer + sync/ defer/
+├── flake.nix                       # darwinConfigurations の入口
+├── hosts/
+│   └── HayatonoMacBook-Pro/
+│       └── default.nix             # cask + mas + modules/darwin を import
+├── modules/
+│   ├── darwin/
+│   │   ├── default.nix             # homebrew enable / fonts / nix 設定 / users
+│   │   └── macos-defaults.nix      # defaults write (Dock / Finder / Screencapture / NSGlobalDomain)
+│   └── home/
+│       ├── default.nix             # 兄弟モジュールを集約する import-only
+│       ├── packages.nix            # nixpkgs の CLI ツール
+│       ├── mise.nix                # ランタイム (node / python / gemini-cli)
+│       ├── git.nix
+│       ├── ghostty.nix             # 設定のみ (バイナリは cask)
+│       ├── starship.nix
+│       ├── zellij.nix
+│       ├── nvim/                   # LazyVim (lazyvim-nix flake input)
+│       └── zsh/                    # sheldon + zsh-defer + sync/ defer/
+└── home/
+    └── hayato/
+        └── default.nix             # home.username / home.homeDirectory + modules/home を import
 ```
 
 ## 新規 Mac セットアップ
@@ -73,7 +79,7 @@ ssh-keygen -t ed25519 -C "<メールアドレス>"
 cat ~/.ssh/id_ed25519.pub
 ```
 
-公開鍵を https://github.com/settings/keys に登録。`~/.ssh/config` は宣言化していない (空のまま運用)。GitHub host block 等が必要になったら `home-manager/home/` に `programs.ssh` モジュールを切り出す ([docs/maintenance.md](./docs/maintenance.md#新しいモジュールを-1-つ切り出す) 参照)。
+公開鍵を https://github.com/settings/keys に登録。`~/.ssh/config` は宣言化していない (空のまま運用)。GitHub host block 等が必要になったら `modules/home/` に `programs.ssh` モジュールを切り出す ([docs/maintenance.md](./docs/maintenance.md#新しいモジュールを-1-つ切り出す) 参照)。
 
 ### 6. ホスト名を `flake.nix` のキーに合わせる
 
@@ -112,7 +118,7 @@ sudo darwin-rebuild switch --flake .
 
 ### 10. (任意) mise ランタイムの最終確認
 
-`home-manager/home/mise.nix` で宣言したランタイムが入っているか:
+`modules/home/mise.nix` で宣言したランタイムが入っているか:
 
 ```sh
 mise list
