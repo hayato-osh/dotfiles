@@ -13,6 +13,7 @@
       ghq.root = "/Users/hayato/project";
       init.defaultBranch = "main";
       core.ignorecase = false;
+      core.editor = "nvim";
     };
 
     ignores = [
