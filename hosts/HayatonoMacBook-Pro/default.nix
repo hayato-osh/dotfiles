@@ -12,6 +12,7 @@
       "brave-browser"
       "claude"
       "claude-code"
+      "cmux"
       "deepl"
       "discord"
       "docker-desktop"
@@ -25,6 +26,7 @@
       "raycast"
       "slack"
       "visual-studio-code"
+      "zed"
       "zoom"
     ];
 
