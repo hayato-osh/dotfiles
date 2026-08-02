@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, llm-agents, ... }:
 
 let
   # モダン CLI
@@ -37,6 +37,11 @@ let
     (tesseract.override { enableLanguages = [ "eng" "jpn" ]; })
   ];
 
+  # AI コーディングエージェント (nixpkgs 未収録のため llm-agents.nix から)
+  agentTools = [
+    llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.herdr
+  ];
+
   # Language Server (LazyVim 自身の Lua 編集用)
   langServers = with pkgs; [
     lua-language-server
@@ -57,6 +62,7 @@ in
     ++ nodeTools
     ++ serviceCli
     ++ mediaTools
+    ++ agentTools
     ++ langServers
     ++ macTools;
 }

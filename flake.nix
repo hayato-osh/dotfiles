@@ -30,13 +30,21 @@
 
     # LazyVim を宣言的に管理
     lazyvim.url = "github:pfassina/lazyvim-nix";
+
+    # nixpkgs 未収録の AI コーディングエージェント系 CLI (herdr など)
+    #
+    # nixpkgs を follows させないのは意図的。この flake の packages 出力は
+    # 全パッケージを一括評価するため、上流が pin した nixpkgs を差し替えると
+    # herdr と無関係なパッケージ (agent-browser の pnpm_11 など) の依存欠落で
+    # 評価ごと落ちる。上流のバイナリキャッシュも rev 一致時しか効かない。
+    llm-agents.url = "github:numtide/llm-agents.nix";
   };
 
   outputs =
     { nixpkgs, nix-darwin, home-manager, ... }@inputs:
     let
       hmExtraSpecialArgs = {
-        inherit (inputs) zsh-autosuggestions zsh-completions zsh-syntax-highlighting lazyvim;
+        inherit (inputs) zsh-autosuggestions zsh-completions zsh-syntax-highlighting lazyvim llm-agents;
       };
     in
     {
