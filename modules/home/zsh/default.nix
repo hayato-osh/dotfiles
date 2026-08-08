@@ -11,6 +11,12 @@
   programs.zsh = {
     enable = true;
 
+    # Homebrew インストーラが手書きした ~/.zprofile の内容。/opt/homebrew/bin は
+    # /etc/paths にも systemPath にも無く、ここだけが brew を PATH に載せている。
+    profileExtra = ''
+      eval "$(/opt/homebrew/bin/brew shellenv)"
+    '';
+
     # zsh-defer を sheldon より先に読み込む。
     # defer テンプレートは zsh-defer コマンドを呼ぶため、sheldon source の前に
     # 利用可能になっている必要がある。
