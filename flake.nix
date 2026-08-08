@@ -99,6 +99,8 @@
               {
                 home-manager.useGlobalPkgs = true;
                 home-manager.useUserPackages = true;
+                # 既存の dotfiles がある機体でも初回 switch を止めない (衝突分を退避する)。
+                home-manager.backupFileExtension = "bk";
                 home-manager.extraSpecialArgs = {
                   inherit (inputs)
                     zsh-completions
