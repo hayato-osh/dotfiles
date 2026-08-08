@@ -1,31 +1,16 @@
-{ config, lib, pkgs, ... }:
+{ host, ... }:
 
 {
   imports = [
     ../../modules/darwin
   ];
 
+  nixpkgs.hostPlatform = host.system;
+
   homebrew = {
+    # 共通分は modules/darwin/apps.nix。ここは個人機だけに入れるもの。
     casks = [
-      "1password"
-      "brave-browser"
-      "claude"
-      "cmux"
-      "deepl"
       "discord"
-      "docker-desktop"
-      "firefox"
-      "ghostty"
-      "google-chrome"
-      "google-japanese-ime"
-      "notion"
-      "obsidian"
-      "postman"
-      "raycast"
-      "slack"
-      "visual-studio-code"
-      "zed"
-      "zoom"
     ];
 
     masApps = {

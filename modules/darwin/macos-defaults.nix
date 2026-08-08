@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ host, ... }:
 
 {
   system.defaults = {
@@ -14,7 +14,7 @@
 
     screencapture = {
       disable-shadow = true;
-      location = "/Users/hayato/Desktop";
+      location = "${host.homeDirectory}/Desktop";
       type = "png";
     };
 
