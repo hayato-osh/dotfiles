@@ -195,9 +195,13 @@ nix flake update lazyvim
 `onActivation.upgrade = false;` (`modules/darwin/default.nix`) なので switch では cask は上がらない。手動で:
 
 ```sh
-brew upgrade --cask
-brew upgrade
+brew update          # Homebrew 本体
+brew upgrade --cask  # cask
 ```
+
+`autoUpdate = false;` なので switch は Homebrew 本体を更新しない。一方 cask の定義は
+API から常に最新が降ってくるので、放置すると本体だけが古くなり
+`undefined method '...' for Cask` で `brew bundle` が落ちる。数週間に一度 `brew update` する。
 
 cleanup も `"none"` 固定なので、profile から外した cask は手で `brew uninstall --cask <name>` する。一律削除したくなったら `modules/darwin/default.nix` の `cleanup` を `"zap"` に変える (移行期は意図的に避けている)。
 
@@ -263,6 +267,7 @@ home.packages = lib.optionals (host.profile == "work") [ pkgs.awscli2 ];
 | `hm-session-vars.sh: no such file` | `.zprofile` で手動 source している行を消す。HM が `.zshenv` から store 上のパスを直接 source している |
 | switch がファイル衝突で落ちる (`~/.config/...` already exists) | `--backup-extension bk` を付けて再 switch、または該当ファイルを退避 |
 | `mas: not signed in` | App Store アプリで Apple ID にサインインしてから再 switch |
+| `Cask '<name>' definition is invalid: undefined method '...'` | `brew update` で Homebrew 本体を更新してから再 switch |
 | Homebrew が見つからない | `/opt/homebrew/bin/brew` の存在を確認。Apple Silicon は `/opt/homebrew`、Intel は `/usr/local` |
 
 ロールバック:
