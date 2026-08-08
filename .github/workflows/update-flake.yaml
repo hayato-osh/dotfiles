@@ -17,18 +17,19 @@ jobs:
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
+      # --commit-lock-file は付けない。runner に git の identity が無くコミットに
+      # 失敗する上、コミットは create-pull-request 側が作るので二重になる。
       - name: Update flake.lock
-        run: nix flake update --commit-lock-file
-      # ここでは flake 出力のスキーマだけ見る (Linux では darwin 構成を
-      # 評価できないため。lint.yaml のコメント参照)。
-      # 実際に構成がビルドできるかは、この PR に対して走る lint.yaml の
-      # build-darwin ジョブが確認する。
+        run: nix flake update
+      # Linux では darwin 構成を評価できないのでスキーマ検査のみ (lint.yaml 参照)。
+      # 構成のビルドはこの PR に対して走る lint.yaml の build-darwin が確認する。
       - name: Evaluate flake outputs
         run: nix flake check --all-systems --no-build --show-trace
       - uses: peter-evans/create-pull-request@v7
         with:
           branch: update-flake-lock
           title: "chore: update flake.lock"
+          commit-message: "chore: update flake.lock"
           body: |
             `nix flake update` の自動 PR。
 
