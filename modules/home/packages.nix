@@ -1,4 +1,10 @@
-{ config, lib, pkgs, llm-agents, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  llm-agents,
+  ...
+}:
 
 let
   # モダン CLI
@@ -27,6 +33,7 @@ let
 
   # SaaS / プラットフォーム CLI
   serviceCli = with pkgs; [
+    _1password-cli
     stripe-cli
     supabase-cli
   ];
@@ -34,7 +41,12 @@ let
   # メディア処理
   mediaTools = with pkgs; [
     ffmpeg
-    (tesseract.override { enableLanguages = [ "eng" "jpn" ]; })
+    (tesseract.override {
+      enableLanguages = [
+        "eng"
+        "jpn"
+      ];
+    })
   ];
 
   # AI コーディングエージェント (nixpkgs 未収録のため llm-agents.nix から)
@@ -48,9 +60,12 @@ let
   ];
 
   # macOS 専用
-  macTools = lib.optionals pkgs.stdenv.isDarwin (with pkgs; [
-    mas
-  ]);
+  macTools = lib.optionals pkgs.stdenv.isDarwin (
+    with pkgs;
+    [
+      mas
+    ]
+  );
 in
 {
   programs.zoxide.enable = true;

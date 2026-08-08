@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   programs.mise = {
@@ -8,6 +13,7 @@
     globalConfig = {
       tools = {
         node = "22.17.0";
+        "npm:@anthropic-ai/claude-code" = "latest";
         "npm:@google/gemini-cli" = "latest";
         python = "latest";
       };

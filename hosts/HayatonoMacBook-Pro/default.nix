@@ -8,10 +8,8 @@
   homebrew = {
     casks = [
       "1password"
-      "1password-cli"
       "brave-browser"
       "claude"
-      "claude-code"
       "cmux"
       "deepl"
       "discord"
