@@ -1,0 +1,32 @@
+# https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# nix build 成果物 (`nix build` のデフォルト出力先)
+result
+result-*
+
+# direnv
+.direnv/
+
+# Claude Code のプロジェクトローカル設定 (マシン固有・共有しない)
+.claude/settings.local.json
+
+# 公開しないホストの定義 (flake.nix の localHosts が読む)
+hosts.local.nix
+hosts/work/
