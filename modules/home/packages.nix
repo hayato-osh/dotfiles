@@ -19,11 +19,11 @@ let
 
   # Git / GitHub
   gitTools = with pkgs; [
+    betterleaks
     gh
     ghq
-    lazygit
-    git-secrets
     gnupg
+    lazygit
   ];
 
   # JS/TS ランタイム

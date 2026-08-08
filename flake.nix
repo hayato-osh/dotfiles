@@ -20,10 +20,6 @@
     };
 
     # Sheldon plugins (sourced declaratively, not at runtime)
-    zsh-autosuggestions = {
-      url = "github:zsh-users/zsh-autosuggestions";
-      flake = false;
-    };
     zsh-completions = {
       url = "github:zsh-users/zsh-completions";
       flake = false;
@@ -96,7 +92,6 @@
                 home-manager.useUserPackages = true;
                 home-manager.extraSpecialArgs = {
                   inherit (inputs)
-                    zsh-autosuggestions
                     zsh-completions
                     zsh-syntax-highlighting
                     lazyvim

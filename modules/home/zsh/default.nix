@@ -2,7 +2,6 @@
   config,
   lib,
   pkgs,
-  zsh-autosuggestions,
   zsh-completions,
   zsh-syntax-highlighting,
   ...
@@ -55,10 +54,6 @@
       };
 
       plugins = {
-        zsh-autosuggestions = {
-          local = "${zsh-autosuggestions}";
-          use = [ "{{ name }}.zsh" ];
-        };
         zsh-completions = {
           local = "${zsh-completions}";
           apply = [ "defer" ];
