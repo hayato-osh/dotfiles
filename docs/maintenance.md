@@ -170,40 +170,77 @@ ignores = [
 
 ## 更新作業
 
-### nixpkgs / lazyvim 等を更新
+更新チャネルは 4 系統あり、**それぞれ独立している**。1 つ動かしても他は動かない。
 
-毎週月曜 03:00 UTC に `.github/workflows/update-flake.yaml` が `nix flake update` して PR を出す。通常はその PR をマージして各マシンで switch するだけで良い。
+| 対象 | 更新方法 | switch で上がる？ |
+| --- | --- | --- |
+| nixpkgs 由来の CLI / Home Manager / nix-darwin / LazyVim | `nix flake update` (週次 PR) | lock を更新済みなら ○ |
+| Homebrew cask (GUI アプリ) と brew 本体 | `brew update && brew upgrade --cask` | ✗ (`upgrade = false`) |
+| mise 管理のランタイム / CLI (node / python / claude-code / gemini-cli) | `mise upgrade` | ✗ |
+| App Store アプリ | App Store 側 | ✗ |
+
+### 1. nixpkgs 等 (flake.lock)
+
+毎週月曜 03:00 UTC に `.github/workflows/update-flake.yaml` が `nix flake update` して PR を出す。
+
+```sh
+# PR をマージした後、各マシンで
+git pull
+sudo darwin-rebuild switch --flake .#<profile>
+```
+
+**マージしただけ・pull しただけでは何も変わらない。** `flake.lock` は「どの nixpkgs リビジョンを使うか」を pin しているだけで、実体が入れ替わるのは `switch` のとき。
+
+`flake.lock` の nixpkgs が進むと、そこに含まれる**全パッケージの定義が一斉に新しくなる**。個別にバージョンを指定しているわけではないので、1 回の更新で ripgrep も git も lazygit もまとめて上がる。
 
 手で回す場合:
 
 ```sh
-nix flake update
-sudo darwin-rebuild switch --flake .
+nix flake update              # 全 input
+nix flake update nixpkgs      # 個別 input だけ
+sudo darwin-rebuild switch --flake .#<profile>
 ```
 
-問題があれば `git checkout flake.lock` で戻して再 switch。
+問題があれば `git checkout flake.lock` で戻して再 switch、または `sudo darwin-rebuild rollback`。
 
-### 個別 input だけ更新
+### 2. Homebrew
 
-```sh
-nix flake update nixpkgs
-nix flake update lazyvim
-```
-
-### Homebrew パッケージ自体の更新
-
-`onActivation.upgrade = false;` (`modules/darwin/default.nix`) なので switch では cask は上がらない。手動で:
+`onActivation.upgrade = false;` (`modules/darwin/default.nix`) なので switch では cask は上がらない。
 
 ```sh
 brew update          # Homebrew 本体
 brew upgrade --cask  # cask
 ```
 
-`autoUpdate = false;` なので switch は Homebrew 本体を更新しない。一方 cask の定義は
-API から常に最新が降ってくるので、放置すると本体だけが古くなり
-`undefined method '...' for Cask` で `brew bundle` が落ちる。数週間に一度 `brew update` する。
+`autoUpdate = false;` なので switch は Homebrew 本体も更新しない。一方 cask の定義は API から常に最新が降ってくるので、放置すると本体だけが古くなり `undefined method '...' for Cask` で `brew bundle` が落ちる。数週間に一度 `brew update` する。
 
-cleanup も `"none"` 固定なので、profile から外した cask は手で `brew uninstall --cask <name>` する。一律削除したくなったら `modules/darwin/default.nix` の `cleanup` を `"zap"` に変える (移行期は意図的に避けている)。
+`cleanup = "none"` 固定なので、profile から外した cask は手で `brew uninstall --cask <name>` する。
+
+### 3. mise
+
+`latest` 指定のものは mise が解決する。
+
+```sh
+mise upgrade         # latest 指定のツールを引き直す
+mise list            # 実際に入っているバージョン
+```
+
+`(missing)` と出るものは宣言されているだけで未取得。`mise install` で入る。switch 直後は未取得のことがあるので、cask から mise に移したツールを消す前に必ず確認する。
+
+バージョンを固定しているもの (`node = "22.17.0"`) は `modules/home/mise.nix` を書き換えて switch。
+
+### CI が担保する範囲
+
+`nix build .#darwinConfigurations.personal.system` が通るところまで。つまり **Nix の式が壊れていないか、パッケージがビルドできるか**だけ。
+
+以下は CI では検証されず、実機の `switch` が最初の検証になる:
+
+- **cask / mas** — `brew bundle` はビルド時ではなく activation 時に走る。cask 名が実在するかも検証されない
+- **mise のツール** — HM は `~/.config/mise/config.toml` を書くだけで、実体は mise がランタイムに取りに行く
+- **activation そのもの** — `defaults write`、launchd、`$HOME` のファイル衝突
+- **公開していないホスト** — `hosts.local.nix` は CI の checkout に含まれない
+
+なので switch が落ちること自体は想定内。世代が残っているので `sudo darwin-rebuild rollback` で戻す。
 
 ## フォーマットと CI
 
