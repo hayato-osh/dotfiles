@@ -1,0 +1,36 @@
+name: "Update flake inputs"
+on:
+  schedule:
+    # 毎週月曜 03:00 UTC (JST 12:00)
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - name: Update flake.lock
+        run: nix flake update --commit-lock-file
+      # ここでは flake 出力のスキーマだけ見る (Linux では darwin 構成を
+      # 評価できないため。lint.yaml のコメント参照)。
+      # 実際に構成がビルドできるかは、この PR に対して走る lint.yaml の
+      # build-darwin ジョブが確認する。
+      - name: Evaluate flake outputs
+        run: nix flake check --all-systems --no-build --show-trace
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: update-flake-lock
+          title: "chore: update flake.lock"
+          body: |
+            `nix flake update` の自動 PR。
+
+            マージ後、各マシンで `sudo darwin-rebuild switch --flake .#<profile>` を実行する。
+          delete-branch: true
