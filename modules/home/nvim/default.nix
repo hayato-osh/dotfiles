@@ -15,6 +15,26 @@
     # ripgrep / fd など LazyVim が前提とする基本依存をまとめて入れる
     installCoreDependencies = true;
 
+    # LSP / treesitter / conform (nixfmt) / nvim-lint (statix) をまとめて配線する。
+    # LSP だけ既定の nil_ls から nixd に差し替え — flake の評価ベース補完が効く。
+    # config は extra を置き換えず lua/plugins/ に追加されるので、他の配線は残る。
+    extras.lang.nix = {
+      enable = true;
+      config = ''
+        return {
+          {
+            "neovim/nvim-lspconfig",
+            opts = {
+              servers = {
+                nil_ls = { enabled = false },
+                nixd = {},
+              },
+            },
+          },
+        }
+      '';
+    };
+
     plugins.colorscheme = ''
       return {
         "cocopon/iceberg.vim",

@@ -54,9 +54,13 @@ let
     llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.herdr
   ];
 
-  # Language Server (LazyVim 自身の Lua 編集用)
-  langServers = with pkgs; [
+  # Neovim が PATH から呼ぶ LSP / formatter / linter
+  # nixfmt と statix は LazyVim の lang.nix extra が conform / nvim-lint に配線する。
+  nvimTools = with pkgs; [
     lua-language-server
+    nixd
+    nixfmt
+    statix
   ];
 
   # macOS 専用
@@ -83,6 +87,6 @@ in
     ++ serviceCli
     ++ mediaTools
     ++ agentTools
-    ++ langServers
+    ++ nvimTools
     ++ macTools;
 }
