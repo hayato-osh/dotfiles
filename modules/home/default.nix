@@ -8,7 +8,6 @@
     ./nvim
     ./packages.nix
     ./starship.nix
-    ./zellij.nix
     ./zsh
   ];
 
