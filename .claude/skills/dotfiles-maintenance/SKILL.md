@@ -15,19 +15,24 @@ description: Nix Flake + nix-darwin + Home Manager で管理する macOS dotfile
 
 | ユーザーが追加・変更したいもの | 編集先 | 詳細レシピ |
 | --- | --- | --- |
-| GUI アプリ (App Store 以外) | [`hosts/HayatonoMacBook-Pro/default.nix`](../../../hosts/HayatonoMacBook-Pro/default.nix) の `homebrew.casks` | [Homebrew cask を 1 つ足す](../../../docs/maintenance.md#homebrew-cask-を-1-つ足す) |
-| App Store のアプリ | [`hosts/HayatonoMacBook-Pro/default.nix`](../../../hosts/HayatonoMacBook-Pro/default.nix) の `homebrew.masApps` | [App Store アプリを足す (mas)](../../../docs/maintenance.md#app-store-アプリを足す-mas) |
+| GUI アプリ — 全ホスト共通 | [`modules/darwin/apps.nix`](../../../modules/darwin/apps.nix) の `homebrew.casks` | [Homebrew cask を 1 つ足す](../../../docs/maintenance.md#homebrew-cask-を-1-つ足す) |
+| GUI アプリ — 片方のマシンだけ | `hosts/<profile>/default.nix` の `homebrew.casks` | 同上 |
+| App Store のアプリ | `hosts/<profile>/default.nix` の `homebrew.masApps` | [App Store アプリを足す (mas)](../../../docs/maintenance.md#app-store-アプリを足す-mas) |
+| マシン固有の値 (ホスト名 / ユーザー名) | [`flake.nix`](../../../flake.nix) の `publicHosts` | [新ホスト追加](../../../docs/maintenance.md#新ホスト追加) |
+| 公開したくないホストの定義 | **追跡外** — `hosts.local.nix` + `hosts/<profile>/` | 同上 |
+| git の identity (user.name / user.email) | **リポジトリ外** — `~/.config/git/local.conf` | [git identity](../../../docs/maintenance.md#git-の-identity-name--email) |
 | CLI ツール (プロジェクト単位のバージョン切替不要) | [`modules/home/packages.nix`](../../../modules/home/packages.nix) の `let` バインディング | [CLI ツール (nixpkgs) を足す](../../../docs/maintenance.md#cli-ツール-nixpkgs-を足す) |
 | プロジェクト単位でバージョン切替するランタイム (node / python / ruby など) | [`modules/home/mise.nix:9`](../../../modules/home/mise.nix) の `globalConfig.tools` | [mise でランタイムを増やす / バージョンを上げる](../../../docs/maintenance.md#mise-でランタイムを増やす--バージョンを上げる) |
 | フォント | [`modules/darwin/default.nix`](../../../modules/darwin/default.nix) の `fonts.packages` | (packages.nix のパターンを踏襲) |
 | `defaults write` (Dock / Finder / NSGlobalDomain 等) | [`modules/darwin/macos-defaults.nix`](../../../modules/darwin/macos-defaults.nix) | [macOS の `defaults write` を足す](../../../docs/maintenance.md#macos-の-defaults-write-を足す) |
 | zsh スニペット — 即時 source (PATH / options 系) | `modules/home/zsh/sync/<name>.zsh` を新規作成 | [zsh のエイリアスや関数を足す](../../../docs/maintenance.md#zsh-のエイリアスや関数を足す) |
 | zsh スニペット — 遅延 source (alias / 補完 / fzf glue) | `modules/home/zsh/defer/<name>.zsh` を新規作成 | 同上 |
-| ツール固有設定 (git / zellij / starship / ghostty) | `modules/home/<tool>.nix` の `programs.<tool>.settings` | [git の global ignore を足す](../../../docs/maintenance.md#git-の-global-ignore-を足す) ほか |
+| ツール固有設定 (git / starship / ghostty) | `modules/home/<tool>.nix` の `programs.<tool>.settings` | [git の global ignore を足す](../../../docs/maintenance.md#git-の-global-ignore-を足す) ほか |
 | Neovim プラグイン override / colorscheme | [`modules/home/nvim/default.nix`](../../../modules/home/nvim/default.nix) の `plugins.overrides` (Lua 文字列) | [Neovim (LazyVim) のプラグインを上書き / 追加](../../../docs/maintenance.md#neovim-lazyvim-のプラグインを上書き--追加) |
 | 新規 HM モジュール (例: `programs.ssh`) | `modules/home/<name>.nix` 新規 + [`modules/home/default.nix`](../../../modules/home/default.nix) の `imports` に追加 | [新しいモジュールを 1 つ切り出す](../../../docs/maintenance.md#新しいモジュールを-1-つ切り出す) |
-| 新ホスト (work mac 等) | `hosts/<host>/default.nix` を新規 + [`flake.nix`](../../../flake.nix) に `darwinConfigurations` エントリ追加 | [新ホスト追加](../../../docs/maintenance.md#新ホスト追加-work-マシン等) |
+| 新ホスト | [`flake.nix`](../../../flake.nix) の `hosts` に 1 エントリ + `hosts/<profile>/default.nix` を新規 | [新ホスト追加](../../../docs/maintenance.md#新ホスト追加) |
 | input 更新 (nixpkgs / lazyvim / sheldon プラグイン) | `nix flake update [<input>]` で `flake.lock` を更新 | [更新作業](../../../docs/maintenance.md#更新作業) |
+| 整形 / CI 関連 | [`treefmt.nix`](../../../treefmt.nix)、`.github/workflows/` | [フォーマットと CI](../../../docs/maintenance.md#フォーマットと-ci) |
 
 ユーザーの依頼が表に当てはまらない場合は、行動する前に [docs/maintenance.md](../../../docs/maintenance.md) を全文読む。skill 本体が要約で落としたケースの可能性がある。
 
@@ -35,7 +40,7 @@ description: Nix Flake + nix-darwin + Home Manager で管理する macOS dotfile
 
 ### 例 1: 「Rectangle (cask) を入れて」
 
-`hosts/HayatonoMacBook-Pro/default.nix` の `casks` (アルファベット順) に 1 行追加:
+GUI アプリなので cask。両方のマシンで使うなら `modules/darwin/apps.nix` の `casks` (アルファベット順) に 1 行追加:
 
 ```diff
    "postman"
@@ -44,7 +49,9 @@ description: Nix Flake + nix-darwin + Home Manager で管理する macOS dotfile
    "slack"
 ```
 
-その後 `sudo darwin-rebuild switch --flake .`。
+片方だけなら `hosts/<profile>/default.nix` の `casks` へ。どちらか判断がつかない場合はユーザーに聞く。
+
+その後 `sudo darwin-rebuild switch --flake .#<profile>`。
 
 ### 例 2: 「mise の node を 22.18.0 に上げて」
 
@@ -75,21 +82,27 @@ alias ll='eza -l --git'
 
 1. **新規ファイルを作ったら switch 前に必ず `git add --intent-to-add <file>`**。Nix の flake 評価器は git index に載っているファイルしか見ない。これを忘れると意味のわからない「ファイルが見つからない」エラーが出る。
 2. **層の境界をまたがない**。`hosts/` + `modules/darwin/` = root/OS スコープ・cask・mas・`defaults write`・フォント・users。`modules/home/` + `home/` = ユーザースコープの CLI と dotfiles。HM に cask を入れたり、darwin に CLI ツールを入れたりするのは「層を間違えている」サイン。
-3. **ランタイムは mise の領分** ([`modules/home/mise.nix:9`](../../../modules/home/mise.nix))。`nodejs`、`python`、`ruby`、`go` 等を [`modules/home/packages.nix`](../../../modules/home/packages.nix) に入れない。
-4. **`programs.ghostty.package = null;` は意図的** ([`modules/home/ghostty.nix:7`](../../../modules/home/ghostty.nix))。バイナリは Homebrew cask、HM は設定ファイルだけ書く。`package = null;` を「直そう」として消さない。
-5. **Sheldon 統合は手動配線** ([`modules/home/zsh/default.nix:11`](../../../modules/home/zsh/default.nix) の `lib.mkBefore` ブロックと [`:31`](../../../modules/home/zsh/default.nix) の `enableZshIntegration = false;` は 1 セット)。zsh-defer を sheldon キャッシュより先に source する必要があるため。手動キャッシュコードを残したまま `enableZshIntegration` を `true` に切り替えない。
-6. **`home.stateVersion`** ([`modules/home/default.nix:22`](../../../modules/home/default.nix)) **と `system.stateVersion`** ([`modules/darwin/default.nix:13`](../../../modules/darwin/default.nix)) **は互換性ピン**。Home Manager や nix-darwin が新リリースを出したからといって上げるものではない。
-7. **`homebrew.onActivation.cleanup = "none";`** ([`modules/darwin/default.nix:34`](../../../modules/darwin/default.nix)) **は意図的** (移行期の事故防止)。ユーザーの明示的合意なしに `"zap"` に変えない — 現在のプロファイルに無い cask が一律アンインストールされる。
-8. **flake のキー (`darwinConfigurations."<host>"`) は `scutil --get LocalHostName` と一致必須**。ずれていると `darwinConfigurations.<host>.system not found` が出る。
+3. **`modules/` にマシン固有のリテラルを書かない**。ユーザー名・ホームディレクトリ・ホスト名は `flake.nix` の `hosts` attrset が唯一のソースで、モジュールへは `host` として渡る (`host.username` / `host.homeDirectory` / `host.profile` / `host.system`)。`/Users/hayato` と書きたくなったら `${host.homeDirectory}`。**git の user.name / user.email は例外で、リポジトリに一切書かない** — 追跡外の `~/.config/git/local.conf` が持つ。
+4. **cask は GUI アプリ (`.app`) 専用**。CLI 専用の cask (`1password-cli`、`claude-code` 等) を足さない — nixpkgs (`packages.nix`) か mise (`mise.nix`) の担当。
+5. **`.nix` / `.yaml` を編集したら `nix fmt`**。CI がフォーマット差分で落ちる。`*.zsh` は整形対象外 (`treefmt.nix` で除外)。
+6. **ランタイムは mise の領分** ([`modules/home/mise.nix`](../../../modules/home/mise.nix))。`nodejs`、`python`、`ruby`、`go` 等を [`modules/home/packages.nix`](../../../modules/home/packages.nix) に入れない。
+7. **`programs.ghostty.package = null;` は意図的** ([`modules/home/ghostty.nix`](../../../modules/home/ghostty.nix))。nixpkgs の ghostty は darwin 非対応。バイナリは Homebrew cask、HM は設定ファイルだけ書く。`package = null;` を「直そう」として消さない。
+8. **Sheldon 統合は手動配線** ([`modules/home/zsh/default.nix`](../../../modules/home/zsh/default.nix) の `lib.mkBefore` ブロックと `enableZshIntegration = false;` は 1 セット)。zsh-defer を sheldon キャッシュより先に source する必要があるため。手動キャッシュコードを残したまま `enableZshIntegration` を `true` に切り替えない。
+9. **`home.stateVersion`** ([`modules/home/default.nix`](../../../modules/home/default.nix)) **と `system.stateVersion`** ([`modules/darwin/default.nix`](../../../modules/darwin/default.nix)) **は互換性ピン**。Home Manager や nix-darwin が新リリースを出したからといって上げるものではない。
+10. **`homebrew.onActivation.cleanup = "none";`** ([`modules/darwin/default.nix`](../../../modules/darwin/default.nix)) **は意図的** (移行期の事故防止)。ユーザーの明示的合意なしに `"zap"` に変えない — 現在のプロファイルに無い cask が一律アンインストールされる。
+11. **`lazyvim-nix` は IFD を使う**。darwin 構成は `nix flake check --no-build` では評価できないので `checks` に入っていない。「checks に足しておこう」としない — Linux CI が落ちる。
+12. **ホスト名がズレていても `--flake .#<profile>` で回避できる**。`darwinConfigurations.<host>.system not found` を見たら、`sudo scutil --set LocalHostName` を勧める前にまずプロファイル名での明示指定を案内する (支給機はホスト名を変えられないことがある)。
+13. **追跡外ホスト (`hosts.local.nix` / `hosts/<profile>/`) の中身をリポジトリ側に移さない**。意図的に隠している。`--flake .` からは見えないので、そのマシンの switch は `--flake path:.#<profile>`。
 
 ## 標準ワークフロー (どんな変更でも)
 
 1. 上記ルーティング表で**正しい編集先を特定する**。
 2. **最小の差分で `.nix` を編集**する。リスト系 (`casks`、`masApps`、`home.packages`、`ignores`) は既存の並び方を尊重 — `casks`/`masApps` はアルファベット順、`packages.nix` はカテゴリ単位。
 3. 新規ファイルを作ったなら **`git add --intent-to-add`**。
-4. **適用** — `sudo darwin-rebuild switch --flake .` (system + HM 両方)。HM 側だけしか触っておらず cask/mas/`defaults` を変えていない時は `nix run home-manager -- switch --flake .` の方が速い。
-5. **目視で確認** — 新ツール / アプリ / 設定が実際にロードされていることを確かめる。zsh の変更なら新しいシェルを開く。`defaults write` 系は `killall Dock` / `killall Finder` / 再ログインが要るキーがある。
-6. **switch が失敗したら** エラーを読んで「トラブルシュート」へ。`flake.lock` を消したり `git checkout .` を打ったり、`~/.config/...` を直接編集して「衝突を解消」したりしない — 宣言モデルを破壊する。
+4. **`nix fmt`** をかける (`.nix` / `.yaml` を触った場合)。
+5. **適用** — `sudo darwin-rebuild switch --flake .#<profile>` (system + HM 両方)。HM 側だけしか触っておらず cask/mas/`defaults` を変えていない時は `nix run home-manager -- switch --flake .#<profile>` の方が速い。
+6. **目視で確認** — 新ツール / アプリ / 設定が実際にロードされていることを確かめる。zsh の変更なら新しいシェルを開く。`defaults write` 系は `killall Dock` / `killall Finder` / 再ログインが要るキーがある。
+7. **switch が失敗したら** エラーを読んで「トラブルシュート」へ。`flake.lock` を消したり `git checkout .` を打ったり、`~/.config/...` を直接編集して「衝突を解消」したりしない — 宣言モデルを破壊する。
 
 ## switch 適用前の確認方針
 
@@ -101,7 +114,7 @@ alias ll='eza -l --git'
 
 ## トラブルシュート
 
-エラー → 対処は [docs/maintenance.md の「困ったら」](../../../docs/maintenance.md#困ったら) に集約してあるので**先にそれを読む**。多くは上記「厳守ルール」の違反 (#1 intent-to-add 漏れ / #8 ホスト名不一致 / `users.users` 設定漏れ) に着地する。
+エラー → 対処は [docs/maintenance.md の「困ったら」](../../../docs/maintenance.md#困ったら) に集約してあるので**先にそれを読む**。多くは上記「厳守ルール」の違反 (#1 intent-to-add 漏れ / #3 マシン固有リテラルの直書き / #12 ホスト名不一致 / `users.users` 設定漏れ) に着地する。
 
 表に無い症状の場合は [docs/maintenance.md](../../../docs/maintenance.md) を全文読み、失敗したモジュールの `.nix` ソースを実際に開いてから修正案を出す。
 
