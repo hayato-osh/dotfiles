@@ -1,4 +1,10 @@
-{ config, lib, pkgs, lazyvim, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  lazyvim,
+  ...
+}:
 
 {
   imports = [ lazyvim.homeManagerModules.default ];

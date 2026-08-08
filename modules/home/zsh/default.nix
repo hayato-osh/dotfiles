@@ -1,4 +1,12 @@
-{ config, lib, pkgs, zsh-autosuggestions, zsh-completions, zsh-syntax-highlighting, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  zsh-autosuggestions,
+  zsh-completions,
+  zsh-syntax-highlighting,
+  ...
+}:
 
 {
   programs.zsh = {
@@ -41,8 +49,9 @@
       shell = "zsh";
 
       templates = {
-        defer = ''{{ hooks?.pre | nl }}{% for file in files %}zsh-defer source "{{ file }}"
-{% endfor %}{{ hooks?.post | nl }}'';
+        defer = ''
+          {{ hooks?.pre | nl }}{% for file in files %}zsh-defer source "{{ file }}"
+          {% endfor %}{{ hooks?.post | nl }}'';
       };
 
       plugins = {
