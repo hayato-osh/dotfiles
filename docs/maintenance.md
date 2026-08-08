@@ -7,7 +7,7 @@
 - 適用は `nh darwin switch`。`sudo` は付けない (nh 自身が昇格する。root で呼ぶと弾かれる)
 - コミット前に `nix fmt`。CI がフォーマット差分で落ちる
 - マシン固有の値は `flake.nix` の `publicHosts` (公開しないなら `hosts.local.nix`) だけに書く。`modules/` では `host.username` / `host.homeDirectory` を参照する
-- メールアドレスをリポジトリに書かない。git の identity は追跡外の `~/.config/git/local.conf`
+- メールアドレスをリポジトリに書かない。git の identity と署名鍵は追跡外の `~/.config/git/local.conf`
 - `nix build` や `darwin-rebuild --flake .` を直接打つときは、新規ファイルに `git add --intent-to-add <file>` が要る。これらは git 参照で、index に載っていないファイルを見ない (`nh` は `path:` 参照なので不要)
 - `switch` が通るまでが 1 サイクル。壊したら `sudo darwin-rebuild rollback` (世代一覧は `darwin-rebuild --list-generations`)
 
@@ -86,6 +86,8 @@ home.packages = lib.optionals (host.profile == "work") [ pkgs.awscli2 ];
 - **CI の formatting が落ちる** — 手元で `nix fmt` してコミットし直す
 - **switch がファイル衝突で落ちる** — HM が既存ファイルを `.bk` に退避する (`backupFileExtension`)。`.bk` が既にあると落ちるので、その時は手で消す
 - **`Please tell me who you are`** — `~/.config/git/local.conf` が無い。`./scripts/bootstrap.sh` で作れる
+- **`gpg failed to sign the data` / `user.signingkey needs to be set`** — 同じく `local.conf` に `user.signingkey` が無い。`./scripts/bootstrap.sh` を再実行すると署名鍵のステップだけ走る
+- **署名した本人のコミットが `git log --show-signature` で `No principal matched`** — `~/.config/git/allowed_signers` に `<email> <公開鍵>` の行が無い。GitHub 上の Verified 表示とは独立 (あちらは GitHub に登録した Signing key を見る)
 - **`mas: not signed in`** — App Store にサインインしてから再 switch
 - **`Cask '<name>' definition is invalid`** — `brew update` してから再 switch
 - **`hm-session-vars.sh: no such file`** — `.zprofile` で手動 source している行を消す。HM が `.zshenv` から store のパスを直接 source している

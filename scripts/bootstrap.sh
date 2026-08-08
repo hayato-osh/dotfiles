@@ -10,7 +10,7 @@ usage() {
   cat <<'EOF'
 usage: scripts/bootstrap.sh [-n|--dry-run] [-p|--profile <name>]
 
-  Xcode CLT / Homebrew / Nix / git identity / 初回 switch までを順に済ませる。
+  Xcode CLT / Homebrew / Nix / git identity / 署名鍵 / 初回 switch までを順に済ませる。
   --profile を省くと `scutil --get LocalHostName` の出力を使う。
 EOF
 }
@@ -113,6 +113,40 @@ else
 EOF
 fi
 
+step "コミット署名鍵 (~/.config/git/allowed_signers)"
+# git.nix が commit.gpgsign = true を宣言しているので、鍵が無いとコミットが落ちる。
+# 鍵はマシンごとに違うため local.conf 側に書く。
+SIGNERS="$HOME/.config/git/allowed_signers"
+OP_SSH_SIGN="/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+if git config --file "$GIT_LOCAL" --get user.signingkey >/dev/null 2>&1; then
+  skip "user.signingkey"
+elif ((DRY_RUN)); then
+  printf '    $ (署名鍵を用意して %s に user.signingkey を追記)\n' "$GIT_LOCAL"
+else
+  [[ -t 0 ]] || die "$GIT_LOCAL に user.signingkey が無い。対話端末で再実行するか手で書く"
+  git_email="$(git config --file "$GIT_LOCAL" --get user.email)"
+  [[ -n "$git_email" ]] || die "$GIT_LOCAL に user.email が無い"
+
+  if [[ -x "$OP_SSH_SIGN" ]]; then
+    # 1Password が鍵を持つ。秘密鍵はディスクに出さず、署名のたびに生体認証が出る。
+    printf '    1Password で SSH 鍵 (ed25519) を作り、その公開鍵を貼る\n'
+    read -r -p "    public key: " pubkey
+    git config --file "$GIT_LOCAL" gpg.ssh.program "$OP_SSH_SIGN"
+  else
+    # 1Password を入れられないマシン。鍵はディスクに置き、パスフレーズで守る。
+    key="$HOME/.ssh/id_ed25519"
+    [[ -f "$key" ]] || run ssh-keygen -t ed25519 -C "$git_email" -f "$key"
+    pubkey="$(<"$key.pub")"
+  fi
+
+  # 末尾のコメントは allowed_signers の書式に無いので落とす。
+  pubkey="$(printf '%s\n' "$pubkey" | awk '{print $1, $2}')"
+  [[ "$pubkey" == ssh-* ]] || die "公開鍵の形式が違う: $pubkey"
+
+  git config --file "$GIT_LOCAL" user.signingkey "$pubkey"
+  printf '%s %s\n' "$git_email" "$pubkey" >>"$SIGNERS"
+fi
+
 step "構成を適用"
 : "${PROFILE:=$(scutil --get LocalHostName)}"
 printf '    profile: %s\n' "$PROFILE"
@@ -129,6 +163,8 @@ fi
 
 step "残りは手作業"
 cat <<'EOF'
+    - 署名用の公開鍵を GitHub に Signing key として登録する
+      https://github.com/settings/ssh/new (Key type = Signing Key)
     - App Store に Apple ID でサインインし、このスクリプトを再実行する (masApps が入る)
     - GUI アプリの権限 (アクセシビリティ / 画面収録) は初回起動時に許可する
     - 新しいシェルを開き直す

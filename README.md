@@ -3,7 +3,7 @@
 macOS 環境を **Nix Flake + nix-darwin + Home Manager** で宣言的に管理する。すべての変更は `.nix` の編集で、適用は `nh darwin switch` の 1 コマンド。
 
 - マシン固有の値 (ホスト名 / ユーザー名) は `flake.nix` の `publicHosts` に集約する。`modules/` にリテラルを書かない
-- git の identity だけはリポジトリに載せない (public なので)。追跡外の `~/.config/git/local.conf`
+- git の identity と署名鍵だけはリポジトリに載せない (public なので)。追跡外の `~/.config/git/local.conf`
 - 支給機など公開したくないホストは追跡外の `hosts.local.nix` + `hosts/<profile>/` に置く。`nh` は `path:` でリポを読むのでそのまま切り替わる (git 参照の `--flake .` からは見えない)
 
 ## セットアップ (新規 Mac)
@@ -15,7 +15,7 @@ git clone https://github.com/hayato-osh/dotfiles.git && cd dotfiles
 ./scripts/bootstrap.sh
 ```
 
-`bootstrap.sh` が Xcode CLT / Homebrew / Nix / git identity / 初回 switch までやる。冪等なので途中で落ちても再実行でよい。`--dry-run` で実行内容だけ確認できる。
+`bootstrap.sh` が Xcode CLT / Homebrew / Nix / git identity / 署名鍵 / 初回 switch までやる。冪等なので途中で落ちても再実行でよい。`--dry-run` で実行内容だけ確認できる。
 
 - 実ホスト名が `publicHosts.<profile>.hostName` と一致しない場合は `--profile <name>` で明示する
 - 手作業でしか済まないのは 2 つ — **App Store のサインイン** (してから再実行すると `masApps` が入る) と、**GUI アプリの権限許可** (初回起動時)
@@ -53,7 +53,7 @@ Home Manager 単体の切り替えコマンドは無い。この構成の HM は
 - **zsh スニペット** → `modules/home/zsh/sync/*.zsh` (即時) か `defer/*.zsh` (遅延)
 - **ツール固有の設定** → `modules/home/<tool>.nix`
 - **マシン固有の値 / 新ホスト** → `flake.nix` の `publicHosts` + `hosts/<profile>/default.nix`
-- **git の identity** → リポジトリ外の `~/.config/git/local.conf`
+- **git の identity / 署名鍵** → リポジトリ外の `~/.config/git/local.conf`
 
 **Homebrew は GUI アプリ (`.app`) 専用。** CLI は nixpkgs か mise に置く (`1password-cli` のような CLI 専用 cask を足さない)。
 

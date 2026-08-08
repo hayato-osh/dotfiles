@@ -22,6 +22,13 @@
       core.ignorecase = false;
       core.editor = "nvim";
 
+      # 署名は SSH 鍵で行う。鍵の実体 (user.signingkey) と、1Password を使う
+      # マシンだけに要る gpg.ssh.program は identity 同様 local.conf 側が持つ。
+      commit.gpgsign = true;
+      tag.gpgsign = true;
+      gpg.format = "ssh";
+      gpg.ssh.allowedSignersFile = "${host.homeDirectory}/.config/git/allowed_signers";
+
       # difftastic は difftool 側だけに挿す。programs.difftastic.git.enable は
       # delta と HM の assertion で排他になるため使わず、ここで手書きする。
       diff.tool = "difftastic";

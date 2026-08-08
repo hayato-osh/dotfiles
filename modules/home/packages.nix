@@ -22,7 +22,6 @@ let
     betterleaks
     gh
     ghq
-    gnupg
     lazygit
   ];
 
