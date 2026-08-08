@@ -42,6 +42,7 @@ macOS 環境を **Nix Flake + nix-darwin + Home Manager** で宣言的に管理�
 | `host.homeDirectory` | `"/Users/hayato"` | `home/default.nix`、`macos-defaults.nix` の screencapture、`git.nix` の ghq.root |
 | `host.system` | `"aarch64-darwin"` | `hosts/<profile>/default.nix` の `nixpkgs.hostPlatform` |
 | `host.profile` | `"personal"` / `"work"` | ホスト間で分岐したいとき |
+| `host.dotfilesPath` | `"/Users/hayato/project/..."` | `nh.nix` の `NH_FLAKE` (未設定なら `null`) |
 
 ### 4 層構造 (hosts / modules/darwin / modules/home / home)
 

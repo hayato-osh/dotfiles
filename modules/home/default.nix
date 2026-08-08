@@ -2,9 +2,13 @@
 
 {
   imports = [
+    ./atuin.nix
+    ./direnv.nix
     ./ghostty.nix
     ./git.nix
     ./mise.nix
+    ./nh.nix
+    ./nix-index.nix
     ./nvim
     ./packages.nix
     ./starship.nix

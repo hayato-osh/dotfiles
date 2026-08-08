@@ -35,6 +35,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # comma (`,`) が引く nix-index データベースのビルド済み配布
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # nixpkgs 未収録の AI コーディングエージェント系 CLI (herdr など)
     #
     # nixpkgs を follows させないのは意図的。この flake の packages 出力は
@@ -63,6 +69,8 @@
           hostName = "HayatonoMacBook-Pro";
           system = "aarch64-darwin";
           username = "hayato";
+          # このリポジトリの実パス。nh が NH_FLAKE に使う (省略可)。
+          dotfilesPath = "/Users/hayato/project/github.com/hayato-osh/dotfiles";
         };
       };
 
@@ -80,6 +88,7 @@
             host = host // {
               inherit profile;
               homeDirectory = "/Users/${host.username}";
+              dotfilesPath = host.dotfilesPath or null;
             };
           };
           modules = [
@@ -96,6 +105,7 @@
                     zsh-syntax-highlighting
                     lazyvim
                     llm-agents
+                    nix-index-database
                     ;
                   inherit (config._module.specialArgs) host;
                 };

@@ -69,7 +69,12 @@ let
 in
 {
   programs.zoxide.enable = true;
-  programs.fzf.enable = true;
+
+  programs.fzf = {
+    enable = true;
+    # Ctrl-R は atuin に渡す (modules/home/atuin.nix)。Ctrl-T / Alt-C は fzf のまま。
+    historyWidget.zsh.command = "";
+  };
 
   home.packages =
     modernCli
