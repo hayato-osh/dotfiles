@@ -54,6 +54,7 @@ Home Manager 単体の切り替えコマンドは無い。この構成の HM は
 - **ツール固有の設定** → `modules/home/<tool>.nix`
 - **マシン固有の値 / 新ホスト** → `flake.nix` の `publicHosts` + `hosts/<profile>/default.nix`
 - **git の identity / 署名鍵** → リポジトリ外の `~/.config/git/local.conf`
+- **ssh の per-machine 設定 (1Password の `IdentityAgent` など)** → リポジトリ外の `~/.ssh/config.local`
 
 **Homebrew は GUI アプリ (`.app`) 専用。** CLI は nixpkgs か mise に置く (`1password-cli` のような CLI 専用 cask を足さない)。
 

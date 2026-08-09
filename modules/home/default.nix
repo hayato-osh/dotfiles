@@ -11,6 +11,7 @@
     ./nix-index.nix
     ./nvim
     ./packages.nix
+    ./ssh.nix
     ./starship.nix
     ./zsh
   ];

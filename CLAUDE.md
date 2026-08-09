@@ -53,5 +53,6 @@ nixpkgs に darwin 版がある GUI アプリ (chrome, slack, raycast 等) も c
 - **LazyVim** (`modules/home/nvim/default.nix`): `lazyvim` input (`pfassina/lazyvim-nix`) が **IFD を使う**。darwin 構成は `nix flake check --no-build` では評価できないので `checks` に入れていない。「checks に足しておこう」としない — Linux CI が落ちる
 - **mise** がランタイムと「速く追従したい CLI」を所有する。`packages.nix` に node / python を入れない
 - **git の identity と署名鍵** (`modules/home/git.nix`): `user.name` / `user.email` / `user.signingkey` を宣言せず、`~/.config/git/local.conf` を include するだけ。未設定のマシンでコミットが落ちるのは意図した挙動 (意図しないアドレスで黙って打つより良い)。署名は `gpg.format = "ssh"` で、GPG は使わない — 1Password を入れられるマシンは `gpg.ssh.program` に `op-ssh-sign` を、入れられないマシンはディスク上の鍵を local.conf 側で指す。この分岐がリポジトリ側に出ないので tracked なモジュールは全ホスト同一。`ignores` の `**/.claude/settings.local.json` も外さない
+- **ssh** (`modules/home/ssh.nix`): `enableDefaultConfig = false;` は意図的 — HM の旧既定値は将来削除予定で、残すと switch のたびに warning が出る。`IdentityAgent` (1Password の agent socket) を書かないのも意図的で、1Password を入れられないマシンで socket が無いパスを指すと ssh がそこで詰まる。追跡外の `~/.ssh/config.local` に置き `includes` で読む。ssh は**先勝ち**なので `Include` はファイル先頭でなければならない
 - **Homebrew `cleanup = "none"`** (`modules/darwin/default.nix`): 移行期の誤削除防止。明示的な合意なしに `"zap"` に変えない — プロファイルに無い cask が一律アンインストールされる
 - **`home.stateVersion` / `system.stateVersion`** は互換性ピン。最新値に上げる物ではない

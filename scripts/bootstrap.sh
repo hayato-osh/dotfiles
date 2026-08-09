@@ -147,6 +147,26 @@ else
   printf '%s %s\n' "$git_email" "$pubkey" >>"$SIGNERS"
 fi
 
+step "ssh の per-machine 設定 (~/.ssh/config.local)"
+# ~/.ssh/config は programs.ssh (modules/home/ssh.nix) が宣言的に書く。
+# 1Password の agent を使うかはマシンによるので IdentityAgent だけここに置く。
+SSH_LOCAL="$HOME/.ssh/config.local"
+OP_AGENT="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+if [[ -f "$SSH_LOCAL" ]]; then
+  skip "$SSH_LOCAL"
+elif [[ ! -x "$OP_SSH_SIGN" ]]; then
+  skip "1Password が無いマシンなので不要 (鍵は ~/.ssh から読む)"
+elif ((DRY_RUN)); then
+  printf '    $ (%s を作成)\n' "$SSH_LOCAL"
+else
+  mkdir -p "$HOME/.ssh"
+  chmod 700 "$HOME/.ssh"
+  cat >"$SSH_LOCAL" <<EOF
+Host *
+	IdentityAgent "$OP_AGENT"
+EOF
+fi
+
 step "構成を適用"
 : "${PROFILE:=$(scutil --get LocalHostName)}"
 printf '    profile: %s\n' "$PROFILE"
