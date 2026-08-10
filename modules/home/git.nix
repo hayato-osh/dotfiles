@@ -5,6 +5,16 @@
   ...
 }:
 
+let
+  # 署名鍵は Secure Enclave の中にあり、Apple の ssh-keychain.dylib 経由でしか
+  # 触れない。git は gpg.ssh.program を環境変数なしで呼ぶので、provider の指定を
+  # ラッパーで注入する。ssh-keygen は nixpkgs 版ではなく /usr/bin を使う
+  # (dylib が Apple 製で、対応するのは OS 同梱の ssh-keygen だけ)。
+  ssh-sign = pkgs.writeShellScriptBin "ssh-sign" ''
+    export SSH_SK_PROVIDER=/usr/lib/ssh-keychain.dylib
+    exec /usr/bin/ssh-keygen "$@"
+  '';
+in
 {
   programs.git = {
     enable = true;
@@ -22,11 +32,12 @@
       core.ignorecase = false;
       core.editor = "nvim";
 
-      # 署名は SSH 鍵で行う。鍵の実体 (user.signingkey) と、1Password を使う
-      # マシンだけに要る gpg.ssh.program は identity 同様 local.conf 側が持つ。
+      # 署名は SSH 鍵で行う。鍵はマシンごとに違う (Secure Enclave の外に出せず
+      # 複製もできない) ので、user.signingkey は identity 同様 local.conf 側。
       commit.gpgsign = true;
       tag.gpgsign = true;
       gpg.format = "ssh";
+      gpg.ssh.program = lib.getExe ssh-sign;
       gpg.ssh.allowedSignersFile = "${host.homeDirectory}/.config/git/allowed_signers";
 
       # difftastic は difftool 側だけに挿す。programs.difftastic.git.enable は

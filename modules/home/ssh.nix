@@ -8,17 +8,16 @@
     # 必要な値だけ下の settings で明示する。
     enableDefaultConfig = false;
 
-    # 1Password の SSH agent を使うかはマシンによる (IdentityAgent)。git の
-    # identity と同じく追跡外の config.local が持つ。ssh は先勝ちで解決するので
-    # Include はファイル先頭に置かれる必要があり、HM がそう並べる。
+    # マシン固有の設定を逃がすための口。追跡外なので無くてもよく、ssh は存在
+    # しない Include を黙って無視する (`ssh -G` で確認済み)。
     includes = [ "${host.homeDirectory}/.ssh/config.local" ];
 
     # キーは OpenSSH のディレクティブ名をそのまま使う (matchBlocks は非推奨)。
     settings."*" = {
-      # 1Password を入れられないマシン向け。鍵を一度 agent に載せ、パスフレーズは
-      # Keychain に預ける。これが無いと再起動のたびにパスフレーズを聞かれる。
-      AddKeysToAgent = "yes";
-      UseKeychain = "yes";
+      # 認証にも Secure Enclave の鍵を使う。秘密鍵は取り出せないので、
+      # ディスク上の id_secure_enclave は鍵そのものではなくハンドル。
+      SecurityKeyProvider = "/usr/lib/ssh-keychain.dylib";
+      IdentityFile = "${host.homeDirectory}/.ssh/id_secure_enclave";
     };
   };
 }

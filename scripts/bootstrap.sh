@@ -11,6 +11,7 @@ usage() {
 usage: scripts/bootstrap.sh [-n|--dry-run] [-p|--profile <name>]
 
   Xcode CLT / Homebrew / Nix / git identity / 署名鍵 / 初回 switch までを順に済ませる。
+  署名と認証には Secure Enclave の鍵を使う (1Password には依存しない)。
   --profile を省くと `scutil --get LocalHostName` の出力を使う。
 EOF
 }
@@ -113,58 +114,38 @@ else
 EOF
 fi
 
-step "コミット署名鍵 (~/.config/git/allowed_signers)"
+step "署名 / 認証鍵 (Secure Enclave)"
 # git.nix が commit.gpgsign = true を宣言しているので、鍵が無いとコミットが落ちる。
-# 鍵はマシンごとに違うため local.conf 側に書く。
+# 秘密鍵は Secure Enclave から出せず複製もできないため、マシンごとに別物になる。
+# よって user.signingkey は identity と同じく追跡外の local.conf 側が持つ。
 SIGNERS="$HOME/.config/git/allowed_signers"
-OP_SSH_SIGN="/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+SE_KEY="$HOME/.ssh/id_secure_enclave"
 if git config --file "$GIT_LOCAL" --get user.signingkey >/dev/null 2>&1; then
   skip "user.signingkey"
 elif ((DRY_RUN)); then
-  printf '    $ (署名鍵を用意して %s に user.signingkey を追記)\n' "$GIT_LOCAL"
+  printf '    $ sc_auth create-ctk-identity -l secure-enclave -k p-256-ne -t none\n'
+  printf '    $ (鍵ハンドルを %s に書き出し、user.signingkey を追記)\n' "$SE_KEY"
 else
-  [[ -t 0 ]] || die "$GIT_LOCAL に user.signingkey が無い。対話端末で再実行するか手で書く"
   git_email="$(git config --file "$GIT_LOCAL" --get user.email)"
   [[ -n "$git_email" ]] || die "$GIT_LOCAL に user.email が無い"
 
-  if [[ -x "$OP_SSH_SIGN" ]]; then
-    # 1Password が鍵を持つ。秘密鍵はディスクに出さず、署名のたびに生体認証が出る。
-    printf '    1Password で SSH 鍵 (ed25519) を作り、その公開鍵を貼る\n'
-    read -r -p "    public key: " pubkey
-    git config --file "$GIT_LOCAL" gpg.ssh.program "$OP_SSH_SIGN"
-  else
-    # 1Password を入れられないマシン。鍵はディスクに置き、パスフレーズで守る。
-    key="$HOME/.ssh/id_ed25519"
-    [[ -f "$key" ]] || run ssh-keygen -t ed25519 -C "$git_email" -f "$key"
-    pubkey="$(<"$key.pub")"
+  if [[ ! -f "$SE_KEY" ]]; then
+    # -k p-256-ne = Secure Enclave 内で生成され取り出せない鍵。
+    # -t none = 使用のたびの生体認証を求めない (求めるとコミットのたびに止まる)。
+    run sc_auth create-ctk-identity -l secure-enclave -k p-256-ne -t none
+    # -K が書き出すのは鍵本体ではなくハンドル。出力先が cwd 固定なので隔離して走らせる。
+    tmp="$(mktemp -d)"
+    (cd "$tmp" && /usr/bin/ssh-keygen -w /usr/lib/ssh-keychain.dylib -K -N "")
+    mkdir -p "$HOME/.ssh"
+    chmod 700 "$HOME/.ssh"
+    mv "$tmp/id_ecdsa_sk_rk" "$SE_KEY"
+    mv "$tmp/id_ecdsa_sk_rk.pub" "$SE_KEY.pub"
+    rm -rf "$tmp"
   fi
 
+  git config --file "$GIT_LOCAL" user.signingkey "$SE_KEY"
   # 末尾のコメントは allowed_signers の書式に無いので落とす。
-  pubkey="$(printf '%s\n' "$pubkey" | awk '{print $1, $2}')"
-  [[ "$pubkey" == ssh-* ]] || die "公開鍵の形式が違う: $pubkey"
-
-  git config --file "$GIT_LOCAL" user.signingkey "$pubkey"
-  printf '%s %s\n' "$git_email" "$pubkey" >>"$SIGNERS"
-fi
-
-step "ssh の per-machine 設定 (~/.ssh/config.local)"
-# ~/.ssh/config は programs.ssh (modules/home/ssh.nix) が宣言的に書く。
-# 1Password の agent を使うかはマシンによるので IdentityAgent だけここに置く。
-SSH_LOCAL="$HOME/.ssh/config.local"
-OP_AGENT="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-if [[ -f "$SSH_LOCAL" ]]; then
-  skip "$SSH_LOCAL"
-elif [[ ! -x "$OP_SSH_SIGN" ]]; then
-  skip "1Password が無いマシンなので不要 (鍵は ~/.ssh から読む)"
-elif ((DRY_RUN)); then
-  printf '    $ (%s を作成)\n' "$SSH_LOCAL"
-else
-  mkdir -p "$HOME/.ssh"
-  chmod 700 "$HOME/.ssh"
-  cat >"$SSH_LOCAL" <<EOF
-Host *
-	IdentityAgent "$OP_AGENT"
-EOF
+  printf '%s %s\n' "$git_email" "$(awk '{print $1, $2}' "$SE_KEY.pub")" >>"$SIGNERS"
 fi
 
 step "構成を適用"
@@ -183,8 +164,8 @@ fi
 
 step "残りは手作業"
 cat <<'EOF'
-    - 署名用の公開鍵を GitHub に Signing key として登録する
-      https://github.com/settings/ssh/new (Key type = Signing Key)
+    - ~/.ssh/id_secure_enclave.pub を GitHub に 2 回登録する
+      https://github.com/settings/ssh/new (Signing Key と Authentication Key)
     - App Store に Apple ID でサインインし、このスクリプトを再実行する (masApps が入る)
     - GUI アプリの権限 (アクセシビリティ / 画面収録) は初回起動時に許可する
     - 新しいシェルを開き直す

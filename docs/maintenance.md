@@ -87,6 +87,7 @@ home.packages = lib.optionals (host.profile == "work") [ pkgs.awscli2 ];
 - **switch がファイル衝突で落ちる** — HM が既存ファイルを `.bk` に退避する (`backupFileExtension`)。`.bk` が既にあると落ちるので、その時は手で消す
 - **`Please tell me who you are`** — `~/.config/git/local.conf` が無い。`./scripts/bootstrap.sh` で作れる
 - **`gpg failed to sign the data` / `user.signingkey needs to be set`** — 同じく `local.conf` に `user.signingkey` が無い。`./scripts/bootstrap.sh` を再実行すると署名鍵のステップだけ走る
+- **署名が `invalid format` / `Could not load "..." as a key`** — Secure Enclave の鍵は `SSH_SK_PROVIDER` 無しでは読めない。`gpg.ssh.program` が `git.nix` の `ssh-sign` ラッパーを指しているか確認する (`local.conf` 側に古い `gpg.ssh.program` が残っていると上書きされる)
 - **署名した本人のコミットが `git log --show-signature` で `No principal matched`** — `~/.config/git/allowed_signers` に `<email> <公開鍵>` の行が無い。GitHub 上の Verified 表示とは独立 (あちらは GitHub に登録した Signing key を見る)
 - **`mas: not signed in`** — App Store にサインインしてから再 switch
 - **`Cask '<name>' definition is invalid`** — `brew update` してから再 switch
