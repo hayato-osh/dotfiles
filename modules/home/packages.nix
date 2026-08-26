@@ -46,6 +46,8 @@ let
         "jpn"
       ];
     })
+    yt-dlp
+    ytarchive
   ];
 
   # AI コーディングエージェント (nixpkgs 未収録のため llm-agents.nix から)
