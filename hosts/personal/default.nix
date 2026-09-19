@@ -11,6 +11,7 @@
     # 共通分は modules/darwin/apps.nix。ここは個人機だけに入れるもの。
     casks = [
       "discord"
+      "spotify"
       "steam"
       "tailscale-app"
     ];
