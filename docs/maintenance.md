@@ -19,6 +19,8 @@
 
 毎週月曜 03:00 UTC に `update-flake.yaml` が `nix flake update` して PR を出す。**マージしただけ・pull しただけでは何も変わらない** — 実体が入れ替わるのは switch のとき。
 
+PR は作成から数日寝かせてからマージする。Nix には `minimum-release-age` 相当が無いので、上流で汚染が発覚するまでの猶予をこれで取る。特に `zsh-*` / `lazyvim` / `llm-agents` はレビューを経ず HEAD を取り込む。
+
 ```sh
 git pull && nh darwin switch
 nix flake update nixpkgs        # 個別 input だけ手で回す場合
@@ -45,6 +47,7 @@ App Store アプリ側で更新する。`masApps` は「入っていること」
 - `lint.yaml` / `lint` (ubuntu) — `nix flake check --all-systems --no-build` とフォーマット検査
 - `lint.yaml` / `build-darwin` (macOS) — `personal` の構成を実ビルド
 - `update-flake.yaml` (ubuntu) — 週次 `nix flake update` → PR
+- `dependabot.yml` — Actions は SHA で pin し、Dependabot が 7 日の cooldown 付きで更新 PR を出す。タグ参照に戻さない
 
 `build-darwin` が macOS runner なのは、`lazyvim-nix` が IFD を使う (`~/.config/nvim` を走査する derivation を `builtins.readFile` する) ため。Linux からは aarch64-darwin の IFD を実行できず `--no-build` でも評価が通らない。だから `checks` に darwin 構成を入れていない。
 
