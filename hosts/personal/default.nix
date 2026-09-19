@@ -10,7 +10,9 @@
   homebrew = {
     # 共通分は modules/darwin/apps.nix。ここは個人機だけに入れるもの。
     casks = [
+      "1password"
       "discord"
+      "obsidian"
       "spotify"
       "steam"
       "tailscale-app"

@@ -4,7 +4,6 @@
   homebrew.taps = [ "abue-ammar/tinycast" ];
 
   homebrew.casks = [
-    "1password"
     "claude"
     "docker-desktop"
     "figma"
@@ -14,8 +13,6 @@
     "google-chrome"
     "google-japanese-ime"
     "notion"
-    "obsidian"
-    "postman"
     "slack"
     "abue-ammar/tinycast/tinycast"
     "visual-studio-code"
