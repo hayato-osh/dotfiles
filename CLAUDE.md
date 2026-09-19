@@ -34,7 +34,7 @@ HM に cask を入れる、darwin に CLI を入れるのは層を間違えて�
 
 brew が構造的に必要なのは (a) App Store 配布物 (`masApps` — ライセンスが Apple ID に紐づき Nix が再配布できない)、(b) `/Library/Input Methods` への pkg インストールが要る入力メソッド、(c) nixpkgs に無い / darwin 非対応のもの。
 
-nixpkgs に darwin 版がある GUI アプリ (chrome, slack, raycast 等) も cask のままにしている。TCC 権限 (アクセシビリティ / 画面収録) がバンドルパスと署名に紐づくため、store path が変わる更新のたびに許可を付け直すことになるのを避けている。
+nixpkgs に darwin 版がある GUI アプリ (chrome, slack 等) も cask のままにしている。TCC 権限 (アクセシビリティ / 画面収録) がバンドルパスと署名に紐づくため、store path が変わる更新のたびに許可を付け直すことになるのを避けている。
 
 ## Sheldon + zsh-defer の組み立て
 
