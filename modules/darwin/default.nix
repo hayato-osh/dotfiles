@@ -39,7 +39,11 @@
     home = host.homeDirectory;
   };
 
-  programs.zsh.enable = true;
+  programs.zsh = {
+    enable = true;
+    # compinit は HM 側 (~/.zshrc) に任せる。二重に走ると fpath 差で .zcompdump を毎回作り直す
+    enableGlobalCompInit = false;
+  };
 
   fonts.packages = with pkgs; [
     nerd-fonts.hack
