@@ -14,6 +14,7 @@
     ./packages.nix
     ./ssh.nix
     ./starship.nix
+    ./zed.nix
     ./zsh
   ];
 
