@@ -6,6 +6,7 @@
     ./direnv.nix
     ./ghostty.nix
     ./git.nix
+    ./herdr.nix
     ./mise.nix
     ./nh.nix
     ./nix-index.nix
