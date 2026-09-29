@@ -20,7 +20,6 @@ let
   # Git / GitHub
   gitTools = with pkgs; [
     betterleaks
-    gh
     ghq
     lazygit
   ];
@@ -74,6 +73,15 @@ let
 in
 {
   programs.zoxide.enable = true;
+
+  # config.yml は HM が読み取り専用で書くので、設定は gh config set でなくここで変える。
+  programs.gh = {
+    enable = true;
+    extensions = [ pkgs.gh-stack ];
+    # git の認証は osxkeychain のまま (git.nix)
+    gitCredentialHelper.enable = false;
+    settings.aliases.co = "pr checkout";
+  };
 
   programs.fzf = {
     enable = true;
