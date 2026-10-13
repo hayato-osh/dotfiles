@@ -51,6 +51,9 @@
         metrics = false;
       };
       agent_servers.claude-acp.type = "registry";
+      # Tokyo Night Storm は border (#1b1e2e) が背景より暗く、
+      # markdown preview のチェックボックス枠が背景に沈む。upstream の border 色に上げる
+      theme_overrides."Tokyo Night Storm".border = "#3b4261";
     };
   };
 }
