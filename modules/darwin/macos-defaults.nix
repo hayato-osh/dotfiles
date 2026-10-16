@@ -25,6 +25,8 @@
       FXDefaultSearchScope = "SCcf";
     };
 
+    controlcenter.Sound = true;
+
     NSGlobalDomain = {
       AppleShowAllExtensions = true;
       "com.apple.mouse.tapBehavior" = 1;
