@@ -89,6 +89,9 @@ in
     historyWidget.zsh.command = "";
   };
 
+  # bun install -g の実行ファイル置き場 (bun 本体は nodeTools)
+  home.sessionPath = [ "$HOME/.bun/bin" ];
+
   home.packages =
     modernCli
     ++ gitTools
