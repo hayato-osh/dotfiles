@@ -1,11 +1,4 @@
 {
-  config,
-  lib,
-  pkgs,
-  ...
-}:
-
-{
   programs.mise = {
     enable = true;
     enableZshIntegration = true;
@@ -14,7 +7,6 @@
       tools = {
         node = "24.22.1";
         "npm:@anthropic-ai/claude-code" = "latest";
-        "npm:@google/gemini-cli" = "latest";
         python = "latest";
       };
 
