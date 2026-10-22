@@ -3,6 +3,7 @@
 {
   imports = [
     ./atuin.nix
+    ./claude-code.nix
     ./direnv.nix
     ./ghostty.nix
     ./git.nix
