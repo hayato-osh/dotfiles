@@ -12,7 +12,7 @@
 
     globalConfig = {
       tools = {
-        node = "22.17.0";
+        node = "24.22.1";
         "npm:@anthropic-ai/claude-code" = "latest";
         "npm:@google/gemini-cli" = "latest";
         python = "latest";
