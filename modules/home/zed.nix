@@ -5,7 +5,10 @@
     # バイナリは cask (modules/darwin/apps.nix)。HM は設定だけ書く。
     package = null;
 
-    extensions = [ "tokyo-night" ];
+    extensions = [
+      "tokyo-night"
+      "astro"
+    ];
 
     # switch のたびに既存の settings.json へ上書きマージされる。
     # ここに無いキーは Zed の UI から変えても残る。
