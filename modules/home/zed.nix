@@ -2,7 +2,7 @@
 {
   programs.zed-editor = {
     enable = true;
-    # バイナリは cask (modules/darwin/apps.nix)。HM は設定だけ書く。
+    # バイナリは cask (modules/darwin/workstation.nix)。HM は設定だけ書く。
     package = null;
 
     extensions = [

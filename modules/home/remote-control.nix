@@ -1,5 +1,5 @@
-# server ホスト専用。スマホの Claude アプリから入る Remote Control セッションを常駐させる。
-# Orca が止まっていても動くよう、Orca には依存させない。
+# server ホスト専用の常駐エージェント。スマホの Claude アプリから入る Remote Control と、
+# Orca のヘッドレスランタイム。互いに依存させない (Orca が止まっても Remote Control は動く)。
 {
   config,
   host,
@@ -7,6 +7,19 @@
   ...
 }:
 
+let
+  path = lib.concatStringsSep ":" [
+    "/etc/profiles/per-user/${host.username}/bin"
+    "/run/current-system/sw/bin"
+    "/nix/var/nix/profiles/default/bin"
+    "/opt/homebrew/bin"
+    "/usr/bin"
+    "/bin"
+    "/usr/sbin"
+    "/sbin"
+  ];
+  log = name: "${host.homeDirectory}/Library/Logs/${name}.log";
+in
 lib.mkIf (host.profile == "server") {
   # claude 本体は mise (mise.nix) が持つので、mise exec 経由で解決する。
   launchd.agents.claude-remote-control = {
@@ -22,20 +35,34 @@ lib.mkIf (host.profile == "server") {
         "sub"
       ];
       WorkingDirectory = host.homeDirectory;
-      EnvironmentVariables.PATH = lib.concatStringsSep ":" [
-        "/etc/profiles/per-user/${host.username}/bin"
-        "/run/current-system/sw/bin"
-        "/nix/var/nix/profiles/default/bin"
-        "/opt/homebrew/bin"
-        "/usr/bin"
-        "/bin"
-        "/usr/sbin"
-        "/sbin"
-      ];
+      EnvironmentVariables.PATH = path;
       RunAtLoad = true;
       KeepAlive = true;
-      StandardOutPath = "${host.homeDirectory}/Library/Logs/claude-remote-control.log";
-      StandardErrorPath = "${host.homeDirectory}/Library/Logs/claude-remote-control.log";
+      StandardOutPath = log "claude-remote-control";
+      StandardErrorPath = log "claude-remote-control";
+    };
+  };
+
+  # バイナリは cask (hosts/server)。/opt/homebrew/bin/orca はこのランチャーへの symlink。
+  # LAN には出さず localhost だけで待つ。外からは Tailscale SSH の port forward で入る。
+  launchd.agents.orca-serve = {
+    enable = true;
+    config = {
+      ProgramArguments = [
+        "/Applications/Orca.app/Contents/Resources/bin/orca"
+        "serve"
+        "--bind"
+        "127.0.0.1"
+        "--refuse-public"
+        "--supervise"
+      ];
+      WorkingDirectory = host.homeDirectory;
+      EnvironmentVariables.PATH = path;
+      RunAtLoad = true;
+      # --supervise が自前で再起動し、諦めたときは exit 0 する。そのときは launchd も止める。
+      KeepAlive.SuccessfulExit = false;
+      StandardOutPath = log "orca-serve";
+      StandardErrorPath = log "orca-serve";
     };
   };
 

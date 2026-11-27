@@ -35,7 +35,15 @@ git clone https://github.com/hayato-osh/dotfiles.git && cd dotfiles
 }
 ```
 
-server プロファイルだけに入るもの — スリープ無効 / 停電後の自動再起動 / OS 更新の自動インストール無効、オープンソース版 `tailscaled`、`claude remote-control --name sub` の常駐 (launchd、ログは `~/Library/Logs/claude-remote-control.log`)、入口セッション用の `~/CLAUDE.md`。
+server プロファイルの中身:
+
+- OS — スリープ無効 / 停電後の自動再起動 / OS 更新の自動インストール無効、オープンソース版 `tailscaled`
+- cask — `ghostty` (画面共有での非常用) と Orca だけ。作業機の cask (`modules/darwin/workstation.nix`) は入れない。`masApps` も無し
+- CLI — 共通の home モジュールに加えて `syncthing` / `restic`
+- 常駐 (launchd、ログは `~/Library/Logs/<名前>.log`) — `claude remote-control --name sub` (`claude-remote-control`) と `orca serve` (`orca-serve`)。互いに独立していて、Orca が止まっても Remote Control は動く。`orca serve` は `127.0.0.1` だけで待つので、外からは `ssh -L 6768:127.0.0.1:6768 <server>` (Tailscale SSH) で入る
+- 入口セッション用の `~/CLAUDE.md`
+
+`orca serve` は Electron を動かすのでデスクトップへのログインが要る。電源断から戻ったときのため、システム設定で自動ログインを有効にしておく。
 
 初回 switch のあとに手でやること:
 
@@ -46,7 +54,7 @@ server プロファイルだけに入るもの — スリープ無効 / 停電�
 
 - `flake.nix` — ホスト定義 (`publicHosts`) と `darwinConfigurations` / `formatter` / `checks`
 - `hosts/<profile>/` — そのマシンにしか入れない cask / mas
-- `modules/darwin/` — システムスコープ。共通 cask、`defaults write`、フォント、nix 設定
+- `modules/darwin/` — システムスコープ。作業機の cask (`workstation.nix`)、`defaults write`、フォント、nix 設定
 - `modules/home/` — ユーザースコープ。CLI、シェル、各ツールの dotfiles
 - `home/` — `host` から username / homeDirectory を受けて `modules/home` を import するだけ
 - `scripts/bootstrap.sh` — 新規 Mac のセットアップ
@@ -65,7 +73,7 @@ Home Manager 単体の切り替えコマンドは無い。この構成の HM は
 
 ## 何をどこに足すか
 
-- **GUI アプリ (全ホスト共通)** → `modules/darwin/apps.nix` の `homebrew.casks`
+- **GUI アプリ (作業機共通)** → `modules/darwin/workstation.nix` の `homebrew.casks` (server は import しない)
 - **GUI アプリ (特定のマシンだけ)** → `hosts/<profile>/default.nix` の `homebrew.casks`
 - **App Store アプリ** → `hosts/<profile>/default.nix` の `homebrew.masApps` (ID は `mas search <name>`)
 - **CLI ツール** → `modules/home/packages.nix`

@@ -6,7 +6,6 @@
 
 {
   imports = [
-    ./apps.nix
     ./macos-defaults.nix
   ];
 

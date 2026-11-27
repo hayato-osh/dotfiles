@@ -3,12 +3,13 @@
 {
   imports = [
     ../../modules/darwin
+    ../../modules/darwin/workstation.nix
   ];
 
   nixpkgs.hostPlatform = host.system;
 
   homebrew = {
-    # 共通分は modules/darwin/apps.nix。ここは個人機だけに入れるもの。
+    # 作業機共通は modules/darwin/workstation.nix。ここは個人機だけに入れるもの。
     casks = [
       "1password"
       "discord"
