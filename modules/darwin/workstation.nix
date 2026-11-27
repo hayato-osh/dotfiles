@@ -1,5 +1,5 @@
-# 全ホスト共通の GUI アプリ。片方だけのものは hosts/<profile>/default.nix へ。
-# cask は GUI (.app) 専用 — CLI は packages.nix か mise.nix。
+# 作業機 (personal など) の GUI アプリ。hosts/<profile>/default.nix が import する。
+# 常時稼働の server は import しない。cask は GUI (.app) 専用 — CLI は packages.nix か mise.nix。
 {
   homebrew.taps = [ "abue-ammar/tinycast" ];
 

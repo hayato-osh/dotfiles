@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  host,
   llm-agents,
   ...
 }:
@@ -70,6 +71,15 @@ let
       mas
     ]
   );
+
+  # 常時稼働の server だけ (同期とバックアップ)
+  serverTools = lib.optionals (host.profile == "server") (
+    with pkgs;
+    [
+      restic
+      syncthing
+    ]
+  );
 in
 {
   programs.zoxide.enable = true;
@@ -100,5 +110,6 @@ in
     ++ mediaTools
     ++ agentTools
     ++ nvimTools
-    ++ macTools;
+    ++ macTools
+    ++ serverTools;
 }

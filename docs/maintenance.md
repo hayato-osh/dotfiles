@@ -67,7 +67,7 @@ switch が落ちること自体は想定内。世代が残っているので rol
 ## ホストを足す
 
 1. `flake.nix` の `publicHosts` に 1 エントリ (`hostName` / `system` / `username`、任意で `dotfilesPath`)。公開したくないマシンは同じ形を**追跡外の `hosts.local.nix`** に書く
-2. `hosts/<profile>/default.nix` を作る。`nixpkgs.hostPlatform` と、共通 cask (`modules/darwin/apps.nix`) との差分だけ
+2. `hosts/<profile>/default.nix` を作る。`nixpkgs.hostPlatform` と、作業機なら `modules/darwin/workstation.nix` を import して差分の cask だけ足す
 3. `git add --intent-to-add hosts/<profile>/default.nix`
 4. そのマシンで `./scripts/bootstrap.sh`
 

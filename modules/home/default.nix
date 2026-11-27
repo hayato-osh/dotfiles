@@ -13,6 +13,7 @@
     ./nix-index.nix
     ./nvim
     ./packages.nix
+    ./remote-control.nix
     ./ssh.nix
     ./starship.nix
     ./zed.nix
