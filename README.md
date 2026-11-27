@@ -20,6 +20,28 @@ git clone https://github.com/hayato-osh/dotfiles.git && cd dotfiles
 - 実ホスト名が `publicHosts.<profile>.hostName` と一致しない場合は `--profile <name>` で明示する
 - 手作業でしか済まないのは 2 つ — **App Store のサインイン** (してから再実行すると `masApps` が入る) と、**GUI アプリの権限許可** (初回起動時)
 
+## server ホスト (常時稼働の自宅サーバ)
+
+`hosts/server/` は AC 給電のまま触らない MacBook 用。ホスト名を公開しないので、エントリはリポジトリ直下の追跡外 `hosts.local.nix` に書く:
+
+```nix
+{
+  server = {
+    hostName = "<scutil --get LocalHostName の出力>";
+    system = "aarch64-darwin";
+    username = "<ユーザー名>";
+    dotfilesPath = "/Users/<ユーザー名>/project/github.com/hayato-osh/dotfiles";
+  };
+}
+```
+
+server プロファイルだけに入るもの — スリープ無効 / 停電後の自動再起動 / OS 更新の自動インストール無効、オープンソース版 `tailscaled`、`claude remote-control --name sub` の常駐 (launchd、ログは `~/Library/Logs/claude-remote-control.log`)、入口セッション用の `~/CLAUDE.md`。
+
+初回 switch のあとに手でやること:
+
+- `sudo tailscale up --ssh` — tailnet へのログインと Tailscale SSH の有効化 (1 度だけ)
+- `claude` を 1 度起動してログインする。未ログインの間 remote-control は落ちては再起動を繰り返す。ログイン後は `launchctl kickstart -k gui/$(id -u)/org.nix-community.home.claude-remote-control`
+
 ## 構成
 
 - `flake.nix` — ホスト定義 (`publicHosts`) と `darwinConfigurations` / `formatter` / `checks`
