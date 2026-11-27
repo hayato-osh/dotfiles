@@ -10,13 +10,9 @@
   nixpkgs.hostPlatform = host.system;
 
   # 作業機の cask (workstation.nix) は入れない。Apple ID に紐づく masApps も無し。
-  homebrew = {
-    taps = [ "stablyai/orca" ];
-    casks = [
-      "ghostty" # 画面共有で入ったときの非常用
-      "stablyai/orca/orca"
-    ];
-  };
+  homebrew.casks = [
+    "ghostty" # 画面共有で入ったときの非常用
+  ];
 
   # Tailscale SSH はオープンソース版の tailscaled でしか動かない (App Store 版 / cask は不可)。
   # ログインは初回だけ手で `sudo tailscale up --ssh`。

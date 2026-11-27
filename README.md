@@ -38,12 +38,12 @@ git clone https://github.com/hayato-osh/dotfiles.git && cd dotfiles
 server プロファイルの中身:
 
 - OS — スリープ無効 / 停電後の自動再起動 / OS 更新の自動インストール無効、オープンソース版 `tailscaled`
-- cask — `ghostty` (画面共有での非常用) と Orca だけ。作業機の cask (`modules/darwin/workstation.nix`) は入れない。`masApps` も無し
+- cask — `ghostty` (画面共有での非常用) だけ。作業機の cask (`modules/darwin/workstation.nix`) は入れない。`masApps` も無し
 - CLI — 共通の home モジュールに加えて `syncthing` / `restic`
-- 常駐 (launchd、ログは `~/Library/Logs/<名前>.log`) — `claude remote-control --name sub` (`claude-remote-control`) と `orca serve` (`orca-serve`)。互いに独立していて、Orca が止まっても Remote Control は動く。`orca serve` は `127.0.0.1` だけで待つので、外からは `ssh -L 6768:127.0.0.1:6768 <server>` (Tailscale SSH) で入る
+- 常駐 — `claude remote-control --name sub` (launchd、ログは `~/Library/Logs/claude-remote-control.log`)
 - 入口セッション用の `~/CLAUDE.md`
 
-`orca serve` は Electron を動かすのでデスクトップへのログインが要る。電源断から戻ったときのため、システム設定で自動ログインを有効にしておく。
+HM の launchd agent はデスクトップにログインしたセッションで動く。電源断から戻ったときのため、システム設定で自動ログインを有効にしておく。
 
 初回 switch のあとに手でやること:
 
